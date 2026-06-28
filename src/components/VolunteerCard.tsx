@@ -1,9 +1,10 @@
 import type { VolunteerListingWithAuthor } from "@/lib/types";
 import { CategoryBadge } from "@/components/Badges";
-import ContactButtons from "@/components/ContactButtons";
-import { tiempoRelativo } from "@/lib/format";
+import { enlaceWhatsApp, tiempoRelativo } from "@/lib/format";
 
 export default function VolunteerCard({ vol }: { vol: VolunteerListingWithAuthor }) {
+  const tel = vol.contact_phone?.replace(/[^\d+]/g, "");
+
   return (
     <div className="rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm">
       <div className="mb-2 flex flex-wrap items-center gap-1.5">
@@ -37,12 +38,25 @@ export default function VolunteerCard({ vol }: { vol: VolunteerListingWithAuthor
       </div>
 
       {vol.contact_phone && (
-        <div className="mt-3 border-t border-emerald-100 pt-3">
-          <ContactButtons
-            phone={vol.contact_phone}
-            mensaje={`Hola, vi que ofreces ayuda ("${vol.title}") en Manos Venezuela. Necesito apoyo.`}
-            size="sm"
-          />
+        <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3">
+          <a
+            href={enlaceWhatsApp(
+              vol.contact_phone,
+              `Hola, vi que ofreces ayuda ("${vol.title}") en Manos Venezuela. Quiero coordinar contigo.`,
+            )}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white active:scale-[0.98]"
+          >
+            <span aria-hidden>💬</span> Contactar
+          </a>
+          <a
+            href={`tel:${tel}`}
+            aria-label="Llamar"
+            className="grid h-11 w-12 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-lg text-slate-600 active:scale-[0.98]"
+          >
+            📞
+          </a>
         </div>
       )}
     </div>

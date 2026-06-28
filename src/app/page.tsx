@@ -121,6 +121,16 @@ export default function HomePage() {
 
       <Filters value={filtros} onChange={setFiltros} ocultarUrgencia={tab === "voluntarios"} />
 
+      {tab === "voluntarios" && (
+        <Link
+          href="/voluntarios/nuevo"
+          className="flex items-center justify-between rounded-2xl bg-emerald-600 px-4 py-3 text-white"
+        >
+          <span className="text-sm font-bold">🤝 ¿Puedes ayudar? Ofrécete como voluntario</span>
+          <span aria-hidden>→</span>
+        </Link>
+      )}
+
       {cargando ? (
         <ListaEsqueleto />
       ) : error ? (
