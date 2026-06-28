@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import AuthGate from "@/components/AuthGate";
 import { useSupabase } from "@/components/providers/SupabaseProvider";
 import {
@@ -40,6 +40,12 @@ function Formulario() {
   const [punto, setPunto] = useState<[number, number] | null>(null);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Rellena el contacto con el teléfono usado al registrarse.
+  useEffect(() => {
+    const tel = (user?.user_metadata?.phone as string | undefined)?.trim();
+    if (tel) setContactPhone((actual) => actual || tel);
+  }, [user]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

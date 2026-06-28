@@ -7,6 +7,14 @@ import SetupNotice from "@/components/SetupNotice";
 import { ROLES, type RolValue } from "@/lib/constants";
 import { cx } from "@/lib/format";
 
+// Convierte un teléfono en un correo interno (sintético) para usar la
+// autenticación de Supabase sin enviar correos ni SMS. El usuario nunca lo ve:
+// solo escribe su número y una clave. Ej: "+58 412-1234567" -> "584121234567@telefono.manosvenezuela.app"
+function telefonoAEmail(telefono: string): string {
+  const digitos = telefono.replace(/\D/g, "");
+  return `${digitos}@telefono.manosvenezuela.app`;
+}
+
 export default function EntrarPage() {
   return (
     <Suspense fallback={<div className="px-4 py-10 text-center text-slate-400">Cargando…</div>}>
@@ -26,10 +34,9 @@ function EntrarInner() {
   const [rol, setRol] = useState<RolValue>(
     ROLES.some((r) => r.value === rolInicial) ? rolInicial : "ambos",
   );
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [clave, setClave] = useState("");
   const [cargando, setCargando] = useState(false);
-  const [mensaje, setMensaje] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   if (!configured) return <SetupNotice />;
@@ -46,57 +53,51 @@ function EntrarInner() {
     await refreshProfile();
   }
 
+  function validar(): string | null {
+    const digitos = telefono.replace(/\D/g, "");
+    if (digitos.length < 7) return "Escribe un número de teléfono válido.";
+    if (clave.length < 6) return "La clave debe tener al menos 6 caracteres.";
+    if (modo === "crear" && nombre.trim().length < 2) return "Escribe tu nombre.";
+    return null;
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!supabase) return;
+    const errorValidacion = validar();
+    if (errorValidacion) {
+      setError(errorValidacion);
+      return;
+    }
     setError(null);
-    setMensaje(null);
     setCargando(true);
+
+    const email = telefonoAEmail(telefono);
 
     try {
       if (modo === "crear") {
         const { data, error } = await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: { data: { full_name: nombre.trim() } },
+          email,
+          password: clave,
+          options: { data: { full_name: nombre.trim(), phone: telefono.trim() } },
         });
         if (error) throw error;
         if (!data.session) {
-          // Confirmación por correo activada en el proyecto.
-          setMensaje(
-            "Te enviamos un correo para confirmar tu cuenta. Revísalo y luego inicia sesión.",
+          // Pasa si en Supabase quedó activada la confirmación: hay que desactivarla.
+          setError(
+            "Tu cuenta se creó pero falta un ajuste en el servidor (confirmación de correo). Avisa al administrador.",
           );
-          setModo("entrar");
           return;
         }
         await guardarPerfil();
         router.push("/");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+        const { error } = await supabase.auth.signInWithPassword({ email, password: clave });
         if (error) throw error;
         router.push("/");
       }
     } catch (err) {
-      setError(traducirError(err));
-    } finally {
-      setCargando(false);
-    }
-  }
-
-  async function entrarAnonimo() {
-    if (!supabase) return;
-    setError(null);
-    setCargando(true);
-    try {
-      const { error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
-      if (nombre.trim() || rol) await guardarPerfil();
-      router.push("/");
-    } catch (err) {
-      setError(traducirError(err));
+      setError(traducirError(err, modo));
     } finally {
       setCargando(false);
     }
@@ -106,12 +107,12 @@ function EntrarInner() {
     <div className="px-4 py-6">
       <div className="mx-auto max-w-md">
         <h1 className="text-xl font-bold text-slate-900">
-          {modo === "crear" ? "Crear cuenta" : "Iniciar sesión"}
+          {modo === "crear" ? "Crear cuenta" : "Entrar"}
         </h1>
         <p className="mt-1 text-sm text-slate-500">
           {modo === "crear"
-            ? "Regístrate para publicar y responder solicitudes."
-            : "Entra para continuar."}
+            ? "Solo tu teléfono y una clave. Rápido y sin correo."
+            : "Entra con tu teléfono y tu clave."}
         </p>
 
         <div className="mt-4 flex rounded-xl bg-slate-100 p-1 text-sm font-medium">
@@ -169,26 +170,27 @@ function EntrarInner() {
             </>
           )}
 
-          <Campo label="Correo electrónico">
+          <Campo label="Número de teléfono">
             <input
-              type="email"
+              type="tel"
+              inputMode="tel"
               required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tucorreo@ejemplo.com"
-              autoComplete="email"
+              value={telefono}
+              onChange={(e) => setTelefono(e.target.value)}
+              placeholder="Ej. 0412 1234567"
+              autoComplete="tel"
               className="campo"
             />
           </Campo>
 
-          <Campo label="Contraseña">
+          <Campo label="Clave (mínimo 6 caracteres)">
             <input
               type="password"
               required
               minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
+              value={clave}
+              onChange={(e) => setClave(e.target.value)}
+              placeholder="Una clave que recuerdes"
               autoComplete={modo === "crear" ? "new-password" : "current-password"}
               className="campo"
             />
@@ -197,32 +199,18 @@ function EntrarInner() {
           {error && (
             <p className="rounded-lg bg-peligro-50 px-3 py-2 text-sm text-peligro-700">{error}</p>
           )}
-          {mensaje && (
-            <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{mensaje}</p>
-          )}
 
           <button
             type="submit"
             disabled={cargando}
             className="w-full rounded-xl bg-marca-600 py-3 text-sm font-bold text-white disabled:opacity-60"
           >
-            {cargando ? "Procesando…" : modo === "crear" ? "Crear cuenta" : "Entrar"}
+            {cargando ? "Procesando…" : modo === "crear" ? "Crear cuenta y entrar" : "Entrar"}
           </button>
         </form>
 
-        <div className="my-5 flex items-center gap-3 text-xs text-slate-400">
-          <span className="h-px flex-1 bg-slate-200" />o<span className="h-px flex-1 bg-slate-200" />
-        </div>
-
-        <button
-          onClick={entrarAnonimo}
-          disabled={cargando}
-          className="w-full rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-slate-700 disabled:opacity-60"
-        >
-          Entrar rápido sin cuenta
-        </button>
-        <p className="mt-2 text-center text-[11px] text-slate-400">
-          Podrás añadir tus datos de contacto después, en tu perfil.
+        <p className="mt-4 text-center text-[11px] text-slate-400">
+          Usa siempre el mismo número (con o sin el código de país) para volver a entrar.
         </p>
       </div>
 
@@ -254,13 +242,18 @@ function Campo({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-function traducirError(err: unknown): string {
+function traducirError(err: unknown, modo: "crear" | "entrar"): string {
   const msg = err instanceof Error ? err.message : String(err);
-  if (/Invalid login credentials/i.test(msg)) return "Correo o contraseña incorrectos.";
-  if (/User already registered/i.test(msg)) return "Ese correo ya está registrado. Inicia sesión.";
-  if (/Password should be/i.test(msg)) return "La contraseña debe tener al menos 6 caracteres.";
-  if (/Anonymous sign-ins are disabled/i.test(msg))
-    return "El acceso sin cuenta está desactivado en el proyecto. Crea una cuenta con correo.";
-  if (/Email not confirmed/i.test(msg)) return "Confirma tu correo antes de entrar.";
-  return "Ocurrió un error. Verifica tus datos e intenta de nuevo.";
+  if (/Invalid login credentials/i.test(msg))
+    return "Teléfono o clave incorrectos. ¿Ya tienes cuenta?";
+  if (/User already registered/i.test(msg))
+    return "Ese teléfono ya tiene cuenta. Cambia a “Ya tengo cuenta”.";
+  if (/Password should be/i.test(msg)) return "La clave debe tener al menos 6 caracteres.";
+  if (/Signups not allowed|signup is disabled/i.test(msg))
+    return "El registro está desactivado en el servidor.";
+  if (/Email not confirmed/i.test(msg))
+    return "Falta desactivar la confirmación de correo en el servidor.";
+  return modo === "crear"
+    ? "No se pudo crear la cuenta. Intenta de nuevo."
+    : "No se pudo entrar. Verifica tus datos.";
 }

@@ -24,7 +24,7 @@ function PerfilInner() {
   const [guardado, setGuardado] = useState(false);
   const [guardando, setGuardando] = useState(false);
   const [misSolicitudes, setMisSolicitudes] = useState<HelpRequest[]>([]);
-  const esAnonimo = !user?.email;
+  const telefono = (user?.user_metadata?.phone as string | undefined) ?? null;
 
   useEffect(() => {
     if (profile) {
@@ -68,22 +68,15 @@ function PerfilInner() {
     <div className="space-y-6 px-4 py-4">
       <div className="flex items-center gap-3">
         <div className="grid h-14 w-14 place-items-center rounded-full bg-marca-100 text-2xl">
-          {esAnonimo ? "👤" : "🙂"}
+          🙂
         </div>
         <div>
           <h1 className="text-lg font-bold text-slate-900">{nombre || "Tu perfil"}</h1>
           <p className="text-xs text-slate-400">
-            {esAnonimo ? "Acceso rápido (sin correo)" : user?.email}
+            {telefono ? `📱 ${telefono}` : "Sesión iniciada"}
           </p>
         </div>
       </div>
-
-      {esAnonimo && (
-        <p className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-700">
-          Estás usando acceso rápido. Tu contacto se comparte en cada solicitud que publiques
-          o por el chat de la app.
-        </p>
-      )}
 
       <form onSubmit={guardar} className="space-y-4">
         <label className="block">
