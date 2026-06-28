@@ -7,7 +7,7 @@ import { cx } from "@/lib/format";
 const ITEMS = [
   { href: "/", label: "Inicio", icon: "🏠", match: (p: string) => p === "/" },
   { href: "/mapa", label: "Mapa", icon: "🗺️", match: (p: string) => p.startsWith("/mapa") },
-  { href: "/solicitudes/nueva", label: "Pedir", icon: "➕", match: (p: string) => p.startsWith("/solicitudes/nueva"), destacado: true },
+  { href: "/publicar", label: "Publicar", icon: "➕", match: (p: string) => p.startsWith("/publicar") || p.startsWith("/solicitudes/nueva") || p.startsWith("/voluntarios/nuevo"), destacado: true },
   { href: "/mensajes", label: "Mensajes", icon: "💬", match: (p: string) => p.startsWith("/mensajes") },
   { href: "/perfil", label: "Perfil", icon: "👤", match: (p: string) => p.startsWith("/perfil") },
 ];

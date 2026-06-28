@@ -52,3 +52,23 @@ export interface Message {
   body: string;
   created_at: string;
 }
+
+// Publicación de un voluntario: qué puede ofrecer y dónde.
+export interface VolunteerListing {
+  id: string;
+  author_id: string;
+  title: string;
+  description: string | null;
+  category: CategoriaValue;
+  location_text: string | null;
+  lat: number | null;
+  lng: number | null;
+  contact_phone: string | null;
+  status: "activo" | "pausado";
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VolunteerListingWithAuthor extends VolunteerListing {
+  author: Pick<Profile, "id" | "full_name"> | null;
+}

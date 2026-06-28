@@ -20,9 +20,11 @@ export const FILTROS_INICIALES: FiltrosState = {
 export default function Filters({
   value,
   onChange,
+  ocultarUrgencia = false,
 }: {
   value: FiltrosState;
   onChange: (next: FiltrosState) => void;
+  ocultarUrgencia?: boolean;
 }) {
   return (
     <div className="space-y-3">
@@ -59,33 +61,35 @@ export default function Filters({
         ))}
       </div>
 
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
-        <Chip
-          activo={value.urgencia === "todas"}
-          onClick={() => onChange({ ...value, urgencia: "todas" })}
-        >
-          Cualquier urgencia
-        </Chip>
-        {URGENCIAS.map((u) => (
+      {!ocultarUrgencia && (
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
           <Chip
-            key={u.value}
-            activo={value.urgencia === u.value}
-            onClick={() => onChange({ ...value, urgencia: u.value })}
+            activo={value.urgencia === "todas"}
+            onClick={() => onChange({ ...value, urgencia: "todas" })}
           >
-            {u.label}
+            Cualquier urgencia
           </Chip>
-        ))}
+          {URGENCIAS.map((u) => (
+            <Chip
+              key={u.value}
+              activo={value.urgencia === u.value}
+              onClick={() => onChange({ ...value, urgencia: u.value })}
+            >
+              {u.label}
+            </Chip>
+          ))}
 
-        <label className="ml-auto flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-medium text-slate-600">
-          <input
-            type="checkbox"
-            checked={value.soloAbiertas}
-            onChange={(e) => onChange({ ...value, soloAbiertas: e.target.checked })}
-            className="h-4 w-4 accent-marca-600"
-          />
-          Solo abiertas
-        </label>
-      </div>
+          <label className="ml-auto flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-medium text-slate-600">
+            <input
+              type="checkbox"
+              checked={value.soloAbiertas}
+              onChange={(e) => onChange({ ...value, soloAbiertas: e.target.checked })}
+              className="h-4 w-4 accent-marca-600"
+            />
+            Solo abiertas
+          </label>
+        </div>
+      )}
     </div>
   );
 }

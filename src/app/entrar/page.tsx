@@ -76,19 +76,33 @@ function EntrarInner() {
 
     try {
       if (modo === "crear") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password: clave,
-          options: { data: { full_name: nombre.trim(), phone: telefono.trim() } },
+        // El registro lo crea una función del servidor (cuenta ya confirmada),
+        // así no depende de ajustes de correo en Supabase.
+        const { data, error } = await supabase.functions.invoke("registro", {
+          body: { telefono: telefono.trim(), clave, nombre: nombre.trim(), rol },
         });
         if (error) throw error;
-        if (!data.session) {
-          // Pasa si en Supabase quedó activada la confirmación: hay que desactivarla.
-          setError(
-            "Tu cuenta se creó pero falta un ajuste en el servidor (confirmación de correo). Avisa al administrador.",
-          );
-          return;
+        if (!data?.ok) {
+          if (data?.error === "ya_existe") {
+            setError("Ese teléfono ya tiene cuenta. Cambia a “Ya tengo cuenta”.");
+            return;
+          }
+          if (data?.error === "clave_corta") {
+            setError("La clave debe tener al menos 6 caracteres.");
+            return;
+          }
+          if (data?.error === "telefono_invalido") {
+            setError("Escribe un número de teléfono válido.");
+            return;
+          }
+          throw new Error(data?.error ?? "registro_fallido");
         }
+        // Cuenta creada y confirmada: iniciamos sesión.
+        const { error: errLogin } = await supabase.auth.signInWithPassword({
+          email,
+          password: clave,
+        });
+        if (errLogin) throw errLogin;
         await guardarPerfil();
         router.push("/");
       } else {

@@ -1,18 +1,25 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSupabase } from "@/components/providers/SupabaseProvider";
 import SetupNotice from "@/components/SetupNotice";
 import Welcome from "@/components/Welcome";
 import Filters, { FILTROS_INICIALES, type FiltrosState } from "@/components/Filters";
 import RequestCard from "@/components/RequestCard";
+import VolunteerCard from "@/components/VolunteerCard";
+import { cx } from "@/lib/format";
 import { URGENCIA_MAP } from "@/lib/constants";
-import type { HelpRequestWithAuthor } from "@/lib/types";
+import type { HelpRequestWithAuthor, VolunteerListingWithAuthor } from "@/lib/types";
+
+type Pestana = "necesidades" | "voluntarios";
 
 export default function HomePage() {
   const { configured, user, loading, supabase } = useSupabase();
+  const [tab, setTab] = useState<Pestana>("necesidades");
   const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIALES);
   const [requests, setRequests] = useState<HelpRequestWithAuthor[]>([]);
+  const [voluntarios, setVoluntarios] = useState<VolunteerListingWithAuthor[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,42 +28,48 @@ export default function HomePage() {
     setCargando(true);
     setError(null);
 
-    let query = supabase
-      .from("requests")
-      .select("*, author:profiles!requests_author_id_fkey(id, full_name)")
-      .order("created_at", { ascending: false })
-      .limit(200);
-
-    if (filtros.categoria !== "todas") query = query.eq("category", filtros.categoria);
-    if (filtros.urgencia !== "todas") query = query.eq("urgency", filtros.urgencia);
-    if (filtros.soloAbiertas) query = query.eq("status", "abierta");
-
-    const { data, error } = await query;
-    if (error) {
-      setError("No se pudieron cargar las solicitudes. Intenta de nuevo.");
-      setRequests([]);
-    } else {
+    if (tab === "necesidades") {
+      let q = supabase
+        .from("requests")
+        .select("*, author:profiles!requests_author_id_fkey(id, full_name)")
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (filtros.categoria !== "todas") q = q.eq("category", filtros.categoria);
+      if (filtros.urgencia !== "todas") q = q.eq("urgency", filtros.urgencia);
+      if (filtros.soloAbiertas) q = q.eq("status", "abierta");
+      const { data, error } = await q;
+      if (error) setError("No se pudieron cargar las solicitudes.");
       setRequests((data as HelpRequestWithAuthor[]) ?? []);
+    } else {
+      let q = supabase
+        .from("volunteer_listings")
+        .select("*, author:profiles!volunteer_listings_author_id_fkey(id, full_name)")
+        .eq("status", "activo")
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (filtros.categoria !== "todas") q = q.eq("category", filtros.categoria);
+      const { data, error } = await q;
+      if (error) setError("No se pudieron cargar los voluntarios.");
+      setVoluntarios((data as VolunteerListingWithAuthor[]) ?? []);
     }
     setCargando(false);
-  }, [supabase, user, filtros.categoria, filtros.urgencia, filtros.soloAbiertas]);
+  }, [supabase, user, tab, filtros.categoria, filtros.urgencia, filtros.soloAbiertas]);
 
   useEffect(() => {
     if (user) void cargar();
   }, [user, cargar]);
 
-  // Búsqueda por texto (cliente) + orden por urgencia y fecha.
-  const visibles = useMemo(() => {
-    const q = filtros.busqueda.trim().toLowerCase();
-    const filtradas = q
+  const requestsVisibles = useMemo(() => {
+    const qq = filtros.busqueda.trim().toLowerCase();
+    const f = qq
       ? requests.filter(
           (r) =>
-            r.title.toLowerCase().includes(q) ||
-            r.description?.toLowerCase().includes(q) ||
-            r.location_text?.toLowerCase().includes(q),
+            r.title.toLowerCase().includes(qq) ||
+            r.description?.toLowerCase().includes(qq) ||
+            r.location_text?.toLowerCase().includes(qq),
         )
       : requests;
-    return [...filtradas].sort((a, b) => {
+    return [...f].sort((a, b) => {
       const ua = URGENCIA_MAP[a.urgency]?.orden ?? 9;
       const ub = URGENCIA_MAP[b.urgency]?.orden ?? 9;
       if (ua !== ub) return ua - ub;
@@ -64,31 +77,71 @@ export default function HomePage() {
     });
   }, [requests, filtros.busqueda]);
 
+  const voluntariosVisibles = useMemo(() => {
+    const qq = filtros.busqueda.trim().toLowerCase();
+    if (!qq) return voluntarios;
+    return voluntarios.filter(
+      (v) =>
+        v.title.toLowerCase().includes(qq) ||
+        v.description?.toLowerCase().includes(qq) ||
+        v.location_text?.toLowerCase().includes(qq),
+    );
+  }, [voluntarios, filtros.busqueda]);
+
   if (!configured) return <SetupNotice />;
   if (loading) return <CargandoPantalla />;
   if (!user) return <Welcome />;
 
+  const lista = tab === "necesidades" ? requestsVisibles : voluntariosVisibles;
+
   return (
     <div className="space-y-4 px-4 py-4">
-      <Filters value={filtros} onChange={setFiltros} />
+      <Link
+        href="/guia"
+        className="flex items-center justify-between rounded-2xl bg-peligro-600 px-4 py-3 text-white"
+      >
+        <span className="text-sm font-bold">🆘 Emergencias y guía de seguridad</span>
+        <span aria-hidden>→</span>
+      </Link>
+
+      <div className="flex rounded-xl bg-slate-100 p-1 text-sm font-semibold">
+        <button
+          onClick={() => setTab("necesidades")}
+          className={cx("flex-1 rounded-lg py-2", tab === "necesidades" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500")}
+        >
+          🆘 Necesito ayuda
+        </button>
+        <button
+          onClick={() => setTab("voluntarios")}
+          className={cx("flex-1 rounded-lg py-2", tab === "voluntarios" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500")}
+        >
+          🤝 Quiero ayudar
+        </button>
+      </div>
+
+      <Filters value={filtros} onChange={setFiltros} ocultarUrgencia={tab === "voluntarios"} />
 
       {cargando ? (
         <ListaEsqueleto />
       ) : error ? (
         <p className="rounded-xl bg-peligro-50 px-4 py-3 text-sm text-peligro-700">{error}</p>
-      ) : visibles.length === 0 ? (
-        <EstadoVacio />
+      ) : lista.length === 0 ? (
+        <EstadoVacio tab={tab} />
       ) : (
         <>
-          <p className="text-xs font-medium text-slate-400">
-            {visibles.length} {visibles.length === 1 ? "solicitud" : "solicitudes"}
-          </p>
+          <p className="text-xs font-medium text-slate-400">{lista.length} resultados</p>
           <ul className="space-y-3">
-            {visibles.map((req) => (
-              <li key={req.id}>
-                <RequestCard req={req} />
-              </li>
-            ))}
+            {tab === "necesidades"
+              ? requestsVisibles.map((req) => (
+                  <li key={req.id}>
+                    <RequestCard req={req} />
+                  </li>
+                ))
+              : voluntariosVisibles.map((vol) => (
+                  <li key={vol.id}>
+                    <VolunteerCard vol={vol} />
+                  </li>
+                ))}
           </ul>
         </>
       )}
@@ -108,22 +161,27 @@ function ListaEsqueleto() {
   return (
     <ul className="space-y-3">
       {[0, 1, 2, 3].map((i) => (
-        <li key={i} className="h-28 animate-pulse rounded-2xl bg-slate-100" />
+        <li key={i} className="h-32 animate-pulse rounded-2xl bg-slate-100" />
       ))}
     </ul>
   );
 }
 
-function EstadoVacio() {
+function EstadoVacio({ tab }: { tab: Pestana }) {
   return (
     <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-12 text-center">
-      <div className="text-3xl">🔍</div>
+      <div className="text-3xl">{tab === "necesidades" ? "🔍" : "🤝"}</div>
       <p className="mt-2 text-sm font-medium text-slate-600">
-        No hay solicitudes con estos filtros
+        {tab === "necesidades"
+          ? "No hay solicitudes con estos filtros"
+          : "Aún no hay voluntarios con estos filtros"}
       </p>
-      <p className="mt-1 text-xs text-slate-400">
-        Prueba a cambiar la categoría o la urgencia.
-      </p>
+      <Link
+        href={tab === "necesidades" ? "/solicitudes/nueva" : "/voluntarios/nuevo"}
+        className="mt-4 inline-block rounded-xl bg-marca-600 px-5 py-2.5 text-sm font-bold text-white"
+      >
+        {tab === "necesidades" ? "Publicar una solicitud" : "Ofrecer mi ayuda"}
+      </Link>
     </div>
   );
 }
