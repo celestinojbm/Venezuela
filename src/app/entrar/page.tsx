@@ -95,7 +95,8 @@ function EntrarInner() {
             setError("Escribe un número de teléfono válido.");
             return;
           }
-          throw new Error(data?.error ?? "registro_fallido");
+          setError(`No se pudo crear la cuenta: ${data?.message ?? data?.error ?? "error desconocido"}`);
+          return;
         }
         // Cuenta creada y confirmada: iniciamos sesión.
         const { error: errLogin } = await supabase.auth.signInWithPassword({
@@ -268,6 +269,6 @@ function traducirError(err: unknown, modo: "crear" | "entrar"): string {
   if (/Email not confirmed/i.test(msg))
     return "Falta desactivar la confirmación de correo en el servidor.";
   return modo === "crear"
-    ? "No se pudo crear la cuenta. Intenta de nuevo."
+    ? `No se pudo crear la cuenta. Detalle: ${msg}`
     : "No se pudo entrar. Verifica tus datos.";
 }
