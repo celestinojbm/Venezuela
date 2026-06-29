@@ -1,11 +1,25 @@
 import Link from "next/link";
 
-const EXTERNOS = [
+const EXTERNOS: {
+  titulo: string;
+  desc: string;
+  url: string;
+  emoji: string;
+  secciones?: string[];
+}[] = [
   {
     titulo: "Red por Venezuela",
-    desc: "Índice con todo en un solo lugar: centros de acopio, dónde donar dinero, fuentes oficiales, servicios (médico, legal, alojamiento) y logística de envíos.",
+    desc: "Índice con todo en un solo lugar. Cada dato enlaza a su fuente oficial.",
     url: "https://redporvenezuela.com",
     emoji: "📚",
+    secciones: [
+      "📦 Centros de acopio (dónde llevar donaciones)",
+      "💸 Donar dinero (campañas y cuentas)",
+      "📰 Oficial y noticias (fuentes verificadas)",
+      "🏥 Servicios (médico, legal, alojamiento, transporte)",
+      "🚚 Envíos y logística",
+      "📍 Necesidades por ciudad",
+    ],
   },
   {
     titulo: "Red de Emergencia",
@@ -48,6 +62,18 @@ export default function RecursosPage() {
               </span>
             </div>
             <p className="mt-1 text-sm text-slate-500">{r.desc}</p>
+            {r.secciones && (
+              <ul className="mt-2 space-y-1">
+                {r.secciones.map((s) => (
+                  <li key={s} className="text-xs text-slate-600">
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <span className="mt-2 inline-block text-xs font-semibold text-marca-600">
+              Abrir {r.titulo} →
+            </span>
           </a>
         ))}
 

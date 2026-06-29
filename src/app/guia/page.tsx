@@ -1,4 +1,5 @@
 import Link from "next/link";
+import EmergenciaUbicacion from "@/components/EmergenciaUbicacion";
 
 const EMERGENCIAS = [
   { label: "Emergencias (Movistar)", numero: "911", desc: "Línea general de emergencias" },
@@ -22,6 +23,8 @@ export default function GuiaPage() {
       <Link href="/" className="text-sm font-medium text-slate-400">
         ← Volver
       </Link>
+
+      <EmergenciaUbicacion />
 
       <section>
         <h1 className="text-xl font-bold text-slate-900">🆘 Emergencias</h1>
