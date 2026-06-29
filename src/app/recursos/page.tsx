@@ -27,6 +27,12 @@ const EXTERNOS: {
     url: "https://redayudavenezuela.com",
     emoji: "🆘",
   },
+  {
+    titulo: "Info Ayuda Venezuela",
+    desc: "Centros de acopio, necesidades urgentes, refugios, guía de insumos y números de emergencia. Funciona incluso sin conexión.",
+    url: "https://infoayudavenezuela.site",
+    emoji: "🧭",
+  },
 ];
 
 export default function RecursosPage() {

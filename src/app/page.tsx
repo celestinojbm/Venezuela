@@ -8,6 +8,7 @@ import Filters, { FILTROS_INICIALES, type FiltrosState } from "@/components/Filt
 import RequestCard from "@/components/RequestCard";
 import VolunteerCard from "@/components/VolunteerCard";
 import RedBuscador from "@/components/RedBuscador";
+import AlertaSismica from "@/components/AlertaSismica";
 import { cx } from "@/lib/format";
 import { URGENCIA_MAP } from "@/lib/constants";
 import type { HelpRequest, VolunteerListing } from "@/lib/types";
@@ -94,6 +95,8 @@ export default function HomePage() {
 
   return (
     <div className="space-y-4 px-4 py-4">
+      <AlertaSismica />
+
       <Link
         href="/guia"
         className="flex items-center justify-between rounded-2xl bg-peligro-600 px-4 py-3 text-white"
