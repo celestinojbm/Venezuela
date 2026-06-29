@@ -17,8 +17,8 @@ const ITEMS = [
       p.startsWith("/voluntarios/nuevo"),
     destacado: true,
   },
+  { href: "/red", label: "Red", icon: "🌐", match: (p: string) => p.startsWith("/red") },
   { href: "/guia", label: "Guía", icon: "🆘", match: (p: string) => p.startsWith("/guia") },
-  { href: "/recursos", label: "Recursos", icon: "📚", match: (p: string) => p.startsWith("/recursos") },
 ];
 
 export default function BottomNav() {
