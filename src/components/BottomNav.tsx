@@ -7,9 +7,18 @@ import { cx } from "@/lib/format";
 const ITEMS = [
   { href: "/", label: "Inicio", icon: "🏠", match: (p: string) => p === "/" },
   { href: "/mapa", label: "Mapa", icon: "🗺️", match: (p: string) => p.startsWith("/mapa") },
-  { href: "/publicar", label: "Publicar", icon: "➕", match: (p: string) => p.startsWith("/publicar") || p.startsWith("/solicitudes/nueva") || p.startsWith("/voluntarios/nuevo"), destacado: true },
-  { href: "/mensajes", label: "Mensajes", icon: "💬", match: (p: string) => p.startsWith("/mensajes") },
-  { href: "/perfil", label: "Perfil", icon: "👤", match: (p: string) => p.startsWith("/perfil") },
+  {
+    href: "/publicar",
+    label: "Publicar",
+    icon: "➕",
+    match: (p: string) =>
+      p.startsWith("/publicar") ||
+      p.startsWith("/solicitudes/nueva") ||
+      p.startsWith("/voluntarios/nuevo"),
+    destacado: true,
+  },
+  { href: "/guia", label: "Guía", icon: "🆘", match: (p: string) => p.startsWith("/guia") },
+  { href: "/recursos", label: "Recursos", icon: "📚", match: (p: string) => p.startsWith("/recursos") },
 ];
 
 export default function BottomNav() {

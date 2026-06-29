@@ -11,7 +11,8 @@ export interface Profile {
 
 export interface HelpRequest {
   id: string;
-  author_id: string;
+  author_id: string | null;
+  author_name: string | null;
   title: string;
   description: string | null;
   category: CategoriaValue;
@@ -56,7 +57,8 @@ export interface Message {
 // Publicación de un voluntario: qué puede ofrecer y dónde.
 export interface VolunteerListing {
   id: string;
-  author_id: string;
+  author_id: string | null;
+  author_name: string | null;
   title: string;
   description: string | null;
   category: CategoriaValue;

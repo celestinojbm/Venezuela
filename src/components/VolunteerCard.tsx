@@ -1,8 +1,8 @@
-import type { VolunteerListingWithAuthor } from "@/lib/types";
+import type { VolunteerListing } from "@/lib/types";
 import { CategoryBadge } from "@/components/Badges";
 import { enlaceWhatsApp, tiempoRelativo } from "@/lib/format";
 
-export default function VolunteerCard({ vol }: { vol: VolunteerListingWithAuthor }) {
+export default function VolunteerCard({ vol }: { vol: VolunteerListing }) {
   const tel = vol.contact_phone?.replace(/[^\d+]/g, "");
 
   return (
@@ -15,9 +15,7 @@ export default function VolunteerCard({ vol }: { vol: VolunteerListingWithAuthor
       </div>
 
       <h3 className="text-[15px] font-semibold leading-snug text-slate-900">{vol.title}</h3>
-      {vol.author?.full_name && (
-        <p className="text-xs text-slate-400">por {vol.author.full_name}</p>
-      )}
+      {vol.author_name && <p className="text-xs text-slate-400">por {vol.author_name}</p>}
 
       {vol.description && (
         <p className="mt-1 line-clamp-3 text-sm text-slate-500">{vol.description}</p>

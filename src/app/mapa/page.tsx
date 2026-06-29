@@ -20,12 +20,12 @@ export default function MapaPage() {
 }
 
 function MapaInner() {
-  const { supabase, user } = useSupabase();
+  const { supabase } = useSupabase();
   const [requests, setRequests] = useState<HelpRequest[]>([]);
   const [cargando, setCargando] = useState(true);
 
   useEffect(() => {
-    if (!supabase || !user) return;
+    if (!supabase) return;
     let activo = true;
     supabase
       .from("requests")
@@ -41,7 +41,7 @@ function MapaInner() {
     return () => {
       activo = false;
     };
-  }, [supabase, user]);
+  }, [supabase]);
 
   return (
     <div className="px-4 py-4">

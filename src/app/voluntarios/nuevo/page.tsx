@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AuthGate from "@/components/AuthGate";
 import { useSupabase } from "@/components/providers/SupabaseProvider";
 import { CATEGORIAS, type CategoriaValue } from "@/lib/constants";
@@ -22,9 +22,10 @@ export default function NuevoVoluntarioPage() {
 }
 
 function Formulario() {
-  const { supabase, user } = useSupabase();
+  const { supabase } = useSupabase();
   const router = useRouter();
 
+  const [nombre, setNombre] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<CategoriaValue>("otros");
   const [description, setDescription] = useState("");
@@ -34,16 +35,15 @@ function Formulario() {
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const tel = (user?.user_metadata?.phone as string | undefined)?.trim();
-    if (tel) setContactPhone((actual) => actual || tel);
-  }, [user]);
-
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!supabase || !user) return;
+    if (!supabase) return;
     if (title.trim().length < 3) {
       setError("Cuéntanos en qué puedes ayudar (mínimo 3 caracteres).");
+      return;
+    }
+    if (!contactPhone.trim()) {
+      setError("Pon un teléfono para que puedan contactarte.");
       return;
     }
     setError(null);
@@ -52,7 +52,7 @@ function Formulario() {
     const { data, error } = await supabase
       .from("volunteer_listings")
       .insert({
-        author_id: user.id,
+        author_name: nombre.trim() || null,
         title: title.trim(),
         category,
         description: description.trim() || null,
@@ -78,8 +78,20 @@ function Formulario() {
         <h1 className="text-xl font-bold text-slate-900">Ofrecer mi ayuda</h1>
         <p className="mt-1 text-sm text-slate-500">
           Cuéntale a la comunidad cómo puedes ayudar. Así te encuentran y te contactan.
+          No necesitas cuenta.
         </p>
       </div>
+
+      <Campo label="Tu nombre (opcional)">
+        <input
+          type="text"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          maxLength={120}
+          placeholder="Ej. José"
+          className="entrada"
+        />
+      </Campo>
 
       <Campo label="¿Cómo puedes ayudar?" requerido>
         <input

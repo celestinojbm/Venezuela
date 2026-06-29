@@ -4,60 +4,59 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSupabase } from "@/components/providers/SupabaseProvider";
 import SetupNotice from "@/components/SetupNotice";
-import Welcome from "@/components/Welcome";
 import Filters, { FILTROS_INICIALES, type FiltrosState } from "@/components/Filters";
 import RequestCard from "@/components/RequestCard";
 import VolunteerCard from "@/components/VolunteerCard";
 import { cx } from "@/lib/format";
 import { URGENCIA_MAP } from "@/lib/constants";
-import type { HelpRequestWithAuthor, VolunteerListingWithAuthor } from "@/lib/types";
+import type { HelpRequest, VolunteerListing } from "@/lib/types";
 
 type Pestana = "necesidades" | "voluntarios";
 
 export default function HomePage() {
-  const { configured, user, loading, supabase } = useSupabase();
+  const { configured, supabase } = useSupabase();
   const [tab, setTab] = useState<Pestana>("necesidades");
   const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIALES);
-  const [requests, setRequests] = useState<HelpRequestWithAuthor[]>([]);
-  const [voluntarios, setVoluntarios] = useState<VolunteerListingWithAuthor[]>([]);
+  const [requests, setRequests] = useState<HelpRequest[]>([]);
+  const [voluntarios, setVoluntarios] = useState<VolunteerListing[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
-    if (!supabase || !user) return;
+    if (!supabase) return;
     setCargando(true);
     setError(null);
 
     if (tab === "necesidades") {
       let q = supabase
         .from("requests")
-        .select("*, author:profiles!requests_author_id_fkey(id, full_name)")
+        .select("*")
         .order("created_at", { ascending: false })
-        .limit(200);
+        .limit(300);
       if (filtros.categoria !== "todas") q = q.eq("category", filtros.categoria);
       if (filtros.urgencia !== "todas") q = q.eq("urgency", filtros.urgencia);
       if (filtros.soloAbiertas) q = q.eq("status", "abierta");
       const { data, error } = await q;
       if (error) setError("No se pudieron cargar las solicitudes.");
-      setRequests((data as HelpRequestWithAuthor[]) ?? []);
+      setRequests((data as HelpRequest[]) ?? []);
     } else {
       let q = supabase
         .from("volunteer_listings")
-        .select("*, author:profiles!volunteer_listings_author_id_fkey(id, full_name)")
+        .select("*")
         .eq("status", "activo")
         .order("created_at", { ascending: false })
-        .limit(200);
+        .limit(300);
       if (filtros.categoria !== "todas") q = q.eq("category", filtros.categoria);
       const { data, error } = await q;
       if (error) setError("No se pudieron cargar los voluntarios.");
-      setVoluntarios((data as VolunteerListingWithAuthor[]) ?? []);
+      setVoluntarios((data as VolunteerListing[]) ?? []);
     }
     setCargando(false);
-  }, [supabase, user, tab, filtros.categoria, filtros.urgencia, filtros.soloAbiertas]);
+  }, [supabase, tab, filtros.categoria, filtros.urgencia, filtros.soloAbiertas]);
 
   useEffect(() => {
-    if (user) void cargar();
-  }, [user, cargar]);
+    void cargar();
+  }, [cargar]);
 
   const requestsVisibles = useMemo(() => {
     const qq = filtros.busqueda.trim().toLowerCase();
@@ -89,8 +88,6 @@ export default function HomePage() {
   }, [voluntarios, filtros.busqueda]);
 
   if (!configured) return <SetupNotice />;
-  if (loading) return <CargandoPantalla />;
-  if (!user) return <Welcome />;
 
   const lista = tab === "necesidades" ? requestsVisibles : voluntariosVisibles;
 
@@ -137,12 +134,8 @@ export default function HomePage() {
             rel="noopener noreferrer"
             className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700"
           >
-            <span className="text-sm font-medium">
-              🔗 Ver más voluntarios en Red de Emergencia
-            </span>
-            <span className="text-xs text-slate-400" aria-hidden>
-              sitio externo ↗
-            </span>
+            <span className="text-sm font-medium">🔗 Ver más voluntarios en Red de Emergencia</span>
+            <span className="text-xs text-slate-400" aria-hidden>sitio externo ↗</span>
           </a>
         </>
       )}
@@ -171,14 +164,6 @@ export default function HomePage() {
           </ul>
         </>
       )}
-    </div>
-  );
-}
-
-function CargandoPantalla() {
-  return (
-    <div className="grid place-items-center py-20 text-slate-400">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-marca-600" />
     </div>
   );
 }

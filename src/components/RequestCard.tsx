@@ -1,10 +1,10 @@
 import Link from "next/link";
-import type { HelpRequestWithAuthor } from "@/lib/types";
+import type { HelpRequest } from "@/lib/types";
 import { CategoryBadge, StatusBadge, UrgencyBadge } from "@/components/Badges";
 import ContactButtons from "@/components/ContactButtons";
 import { tiempoRelativo } from "@/lib/format";
 
-export default function RequestCard({ req }: { req: HelpRequestWithAuthor }) {
+export default function RequestCard({ req }: { req: HelpRequest }) {
   return (
     <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
       <Link href={`/solicitudes/${req.id}`} className="block">
