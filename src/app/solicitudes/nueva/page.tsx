@@ -18,6 +18,21 @@ const MapPicker = dynamic(() => import("@/components/map/MapPicker"), {
   loading: () => <div className="h-[260px] animate-pulse rounded-xl bg-slate-100" />,
 });
 
+function mensajeError(code?: string): string {
+  switch (code) {
+    case "limite":
+      return "Publicaste varias veces seguidas. Espera unos minutos e intenta de nuevo.";
+    case "enlaces":
+      return "Quita los enlaces del texto e intenta de nuevo.";
+    case "titulo":
+      return "El título debe tener entre 3 y 140 caracteres.";
+    case "telefono":
+      return "Pon un teléfono de contacto.";
+    default:
+      return "No se pudo publicar. Revisa los datos e intenta de nuevo.";
+  }
+}
+
 export default function NuevaSolicitudPage() {
   return (
     <AuthGate>
@@ -39,6 +54,7 @@ function Formulario() {
   const [contactPhone, setContactPhone] = useState("");
   const [peopleCount, setPeopleCount] = useState<string>("");
   const [punto, setPunto] = useState<[number, number] | null>(null);
+  const [honeypot, setHoneypot] = useState(""); // anti-spam (oculto)
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,33 +72,47 @@ function Formulario() {
     setError(null);
     setCargando(true);
 
-    const { data, error } = await supabase
-      .from("requests")
-      .insert({
-        author_name: nombre.trim() || null,
-        title: title.trim(),
-        category,
-        urgency,
-        description: description.trim() || null,
-        location_text: locationText.trim() || null,
-        contact_phone: contactPhone.trim() || null,
-        people_count: peopleCount ? Number(peopleCount) : null,
-        lat: punto ? punto[0] : null,
-        lng: punto ? punto[1] : null,
-      })
-      .select("id")
-      .single();
+    const { data, error } = await supabase.functions.invoke("publicar", {
+      body: {
+        tipo: "solicitud",
+        honeypot,
+        payload: {
+          author_name: nombre.trim() || null,
+          title: title.trim(),
+          category,
+          urgency,
+          description: description.trim() || null,
+          location_text: locationText.trim() || null,
+          contact_phone: contactPhone.trim(),
+          people_count: peopleCount || null,
+          lat: punto ? punto[0] : null,
+          lng: punto ? punto[1] : null,
+        },
+      },
+    });
 
     setCargando(false);
-    if (error) {
-      setError("No se pudo publicar. Revisa los datos e intenta de nuevo.");
+    if (error || !data?.ok) {
+      setError(mensajeError(data?.error));
       return;
     }
-    router.push(`/solicitudes/${data.id}`);
+    router.push(data.id ? `/solicitudes/${data.id}` : "/");
   }
 
   return (
     <form onSubmit={onSubmit} className="space-y-5 px-4 py-4">
+      {/* Campo trampa (honeypot) anti-spam: invisible para humanos. */}
+      <input
+        type="text"
+        value={honeypot}
+        onChange={(e) => setHoneypot(e.target.value)}
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        name="website"
+        className="absolute left-[-9999px] top-0 h-0 w-0 opacity-0"
+      />
+
       <div>
         <h1 className="text-xl font-bold text-slate-900">Publicar solicitud</h1>
         <p className="mt-1 text-sm text-slate-500">
