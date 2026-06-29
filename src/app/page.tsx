@@ -7,11 +7,12 @@ import SetupNotice from "@/components/SetupNotice";
 import Filters, { FILTROS_INICIALES, type FiltrosState } from "@/components/Filters";
 import RequestCard from "@/components/RequestCard";
 import VolunteerCard from "@/components/VolunteerCard";
+import RedBuscador from "@/components/RedBuscador";
 import { cx } from "@/lib/format";
 import { URGENCIA_MAP } from "@/lib/constants";
 import type { HelpRequest, VolunteerListing } from "@/lib/types";
 
-type Pestana = "necesidades" | "voluntarios";
+type Pestana = "necesidades" | "voluntarios" | "red";
 
 export default function HomePage() {
   const { configured, supabase } = useSupabase();
@@ -23,7 +24,7 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
-    if (!supabase) return;
+    if (!supabase || tab === "red") return; // la pestaña Red se sirve sola (API en vivo)
     setCargando(true);
     setError(null);
 
@@ -106,62 +107,80 @@ export default function HomePage() {
           onClick={() => setTab("necesidades")}
           className={cx("flex-1 rounded-lg py-2", tab === "necesidades" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500")}
         >
-          🆘 Necesito ayuda
+          🆘 Necesito
         </button>
         <button
           onClick={() => setTab("voluntarios")}
           className={cx("flex-1 rounded-lg py-2", tab === "voluntarios" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500")}
         >
-          🤝 Quiero ayudar
+          🤝 Ayudar
+        </button>
+        <button
+          onClick={() => setTab("red")}
+          className={cx("flex-1 rounded-lg py-2", tab === "red" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500")}
+        >
+          🌐 Red
         </button>
       </div>
 
-      <Filters value={filtros} onChange={setFiltros} ocultarUrgencia={tab === "voluntarios"} />
-
-      {tab === "voluntarios" && (
+      {tab === "red" ? (
         <>
-          <Link
-            href="/voluntarios/nuevo"
-            className="flex items-center justify-between rounded-2xl bg-emerald-600 px-4 py-3 text-white"
-          >
-            <span className="text-sm font-bold">🤝 ¿Puedes ayudar? Ofrécete como voluntario</span>
-            <span aria-hidden>→</span>
-          </Link>
-
-          <a
-            href="https://redayudavenezuela.com/ayuda/voluntarios"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700"
-          >
-            <span className="text-sm font-medium">🔗 Ver más voluntarios en Red de Emergencia</span>
-            <span className="text-xs text-slate-400" aria-hidden>sitio externo ↗</span>
-          </a>
+          <p className="text-sm text-slate-500">
+            Busca en <strong>22 plataformas</strong> de ayuda a la vez: desaparecidos, localizados,
+            hospitalizados, acopio, donación y recursos. Cada resultado enlaza a su fuente.
+          </p>
+          <RedBuscador />
         </>
-      )}
-
-      {cargando ? (
-        <ListaEsqueleto />
-      ) : error ? (
-        <p className="rounded-xl bg-peligro-50 px-4 py-3 text-sm text-peligro-700">{error}</p>
-      ) : lista.length === 0 ? (
-        <EstadoVacio tab={tab} />
       ) : (
         <>
-          <p className="text-xs font-medium text-slate-400">{lista.length} resultados</p>
-          <ul className="space-y-3">
-            {tab === "necesidades"
-              ? requestsVisibles.map((req) => (
-                  <li key={req.id}>
-                    <RequestCard req={req} />
-                  </li>
-                ))
-              : voluntariosVisibles.map((vol) => (
-                  <li key={vol.id}>
-                    <VolunteerCard vol={vol} />
-                  </li>
-                ))}
-          </ul>
+          <Filters value={filtros} onChange={setFiltros} ocultarUrgencia={tab === "voluntarios"} />
+
+          {tab === "voluntarios" && (
+            <>
+              <Link
+                href="/voluntarios/nuevo"
+                className="flex items-center justify-between rounded-2xl bg-emerald-600 px-4 py-3 text-white"
+              >
+                <span className="text-sm font-bold">🤝 ¿Puedes ayudar? Ofrécete como voluntario</span>
+                <span aria-hidden>→</span>
+              </Link>
+
+              <a
+                href="https://redayudavenezuela.com/ayuda/voluntarios"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700"
+              >
+                <span className="text-sm font-medium">🔗 Ver más voluntarios en Red de Emergencia</span>
+                <span className="text-xs text-slate-400" aria-hidden>sitio externo ↗</span>
+              </a>
+            </>
+          )}
+
+          {cargando ? (
+            <ListaEsqueleto />
+          ) : error ? (
+            <p className="rounded-xl bg-peligro-50 px-4 py-3 text-sm text-peligro-700">{error}</p>
+          ) : lista.length === 0 ? (
+            <EstadoVacio tab={tab} />
+          ) : (
+            <>
+              <p className="text-xs font-medium text-slate-400">{lista.length} resultados</p>
+              <ul className="space-y-3">
+                {tab === "necesidades"
+                  ? requestsVisibles.map((req) => (
+                      <li key={req.id}>
+                        <RequestCard req={req} />
+                      </li>
+                    ))
+                  : voluntariosVisibles.map((vol) => (
+                      <li key={vol.id}>
+                        <VolunteerCard vol={vol} />
+                      </li>
+                    ))}
+              </ul>
+            </>
+          )}
         </>
       )}
     </div>
@@ -178,7 +197,7 @@ function ListaEsqueleto() {
   );
 }
 
-function EstadoVacio({ tab }: { tab: Pestana }) {
+function EstadoVacio({ tab }: { tab: Exclude<Pestana, "red"> }) {
   return (
     <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-12 text-center">
       <div className="text-3xl">{tab === "necesidades" ? "🔍" : "🤝"}</div>
