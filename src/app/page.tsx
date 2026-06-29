@@ -16,7 +16,7 @@ type Pestana = "necesidades" | "voluntarios" | "red";
 
 export default function HomePage() {
   const { configured, supabase } = useSupabase();
-  const [tab, setTab] = useState<Pestana>("necesidades");
+  const [tab, setTab] = useState<Pestana>("red"); // la Red es lo primero que se ve
   const [filtros, setFiltros] = useState<FiltrosState>(FILTROS_INICIALES);
   const [requests, setRequests] = useState<HelpRequest[]>([]);
   const [voluntarios, setVoluntarios] = useState<VolunteerListing[]>([]);
@@ -104,6 +104,12 @@ export default function HomePage() {
 
       <div className="flex rounded-xl bg-slate-100 p-1 text-sm font-semibold">
         <button
+          onClick={() => setTab("red")}
+          className={cx("flex-1 rounded-lg py-2", tab === "red" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500")}
+        >
+          🌐 Red
+        </button>
+        <button
           onClick={() => setTab("necesidades")}
           className={cx("flex-1 rounded-lg py-2", tab === "necesidades" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500")}
         >
@@ -114,12 +120,6 @@ export default function HomePage() {
           className={cx("flex-1 rounded-lg py-2", tab === "voluntarios" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500")}
         >
           🤝 Ayudar
-        </button>
-        <button
-          onClick={() => setTab("red")}
-          className={cx("flex-1 rounded-lg py-2", tab === "red" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500")}
-        >
-          🌐 Red
         </button>
       </div>
 
