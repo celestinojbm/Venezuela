@@ -5,9 +5,11 @@ import Link from "next/link";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import type { LatLngBoundsExpression } from "leaflet";
 import { CENTRO_VENEZUELA, ZOOM_INICIAL } from "@/lib/constants";
+import { Phone, MapPin } from "lucide-react";
 import { iconoSolicitud, iconoRed } from "@/components/map/icons";
 import { CATEGORIA_MAP, URGENCIA_MAP } from "@/lib/constants";
 import { waHref, telHref } from "@/lib/contacto";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 import type { HelpRequest } from "@/lib/types";
 
 export type RedPunto = {
@@ -108,7 +110,9 @@ export default function RequestsMap({
                   </div>
                   <div className="mt-0.5 text-sm font-bold text-slate-800">{r.title}</div>
                   {r.location_text && (
-                    <div className="mt-0.5 text-xs text-slate-500">📍 {r.location_text}</div>
+                    <div className="mt-0.5 flex items-center gap-1 text-xs text-slate-500">
+                      <MapPin size={12} className="shrink-0" /> {r.location_text}
+                    </div>
                   )}
                   {(wa || tel) && (
                     <div className="mt-1.5 flex flex-wrap gap-1.5">
@@ -117,17 +121,17 @@ export default function RequestsMap({
                           href={wa}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-bold text-white"
+                          className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-bold text-white"
                         >
-                          💬 WhatsApp
+                          <WhatsAppIcon size={13} /> WhatsApp
                         </a>
                       )}
                       {tel && (
                         <a
                           href={tel}
-                          className="rounded-md border border-slate-200 px-2 py-1 text-[11px] font-bold text-slate-700"
+                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-[11px] font-bold text-slate-700"
                         >
-                          📞 Llamar
+                          <Phone size={12} /> Llamar
                         </a>
                       )}
                     </div>
@@ -161,9 +165,12 @@ export default function RequestsMap({
                   <div className="text-[11px] font-semibold uppercase text-slate-400">{etiqueta}</div>
                   <div className="mt-0.5 text-sm font-bold text-slate-800">{p.titulo}</div>
                   {p.lugar && (
-                    <div className="mt-0.5 text-xs text-slate-500">
-                      📍 {p.lugar}
-                      {p.aprox ? " (ubicación aproximada)" : ""}
+                    <div className="mt-0.5 flex items-center gap-1 text-xs text-slate-500">
+                      <MapPin size={12} className="shrink-0" />
+                      <span>
+                        {p.lugar}
+                        {p.aprox ? " (ubicación aproximada)" : ""}
+                      </span>
                     </div>
                   )}
                   {(wa || tel) && (
@@ -173,17 +180,17 @@ export default function RequestsMap({
                           href={wa}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-bold text-white"
+                          className="inline-flex items-center gap-1 rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-bold text-white"
                         >
-                          💬 WhatsApp
+                          <WhatsAppIcon size={13} /> WhatsApp
                         </a>
                       )}
                       {tel && (
                         <a
                           href={tel}
-                          className="rounded-md border border-slate-200 px-2 py-1 text-[11px] font-bold text-slate-700"
+                          className="inline-flex items-center gap-1 rounded-md border border-slate-200 px-2 py-1 text-[11px] font-bold text-slate-700"
                         >
-                          📞 Llamar
+                          <Phone size={12} /> Llamar
                         </a>
                       )}
                     </div>

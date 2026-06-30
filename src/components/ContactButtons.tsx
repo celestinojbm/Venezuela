@@ -1,6 +1,9 @@
 "use client";
 
+import { Phone } from "lucide-react";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { enlaceWhatsApp } from "@/lib/format";
+import { telHref } from "@/lib/contacto";
 
 /**
  * Botones grandes de contacto directo: WhatsApp y Llamar.
@@ -15,8 +18,8 @@ export default function ContactButtons({
   mensaje?: string;
   size?: "sm" | "md";
 }) {
-  const tel = phone.replace(/[^\d+]/g, "");
-  const alto = size === "md" ? "py-3 text-sm" : "py-2 text-xs";
+  const tel = telHref(phone) ?? `tel:${phone.replace(/[^\d+]/g, "")}`;
+  const alto = size === "md" ? "py-3 text-sm" : "py-2.5 text-xs";
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -25,16 +28,16 @@ export default function ContactButtons({
         target="_blank"
         rel="noopener noreferrer"
         onClick={(e) => e.stopPropagation()}
-        className={`flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 font-bold text-white active:scale-[0.98] ${alto}`}
+        className={`flex items-center justify-center gap-2 rounded-xl bg-emerald-600 font-semibold text-white shadow-sm shadow-emerald-600/20 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:scale-[0.98] ${alto}`}
       >
-        <span aria-hidden>💬</span> WhatsApp
+        <WhatsAppIcon size={size === "md" ? 18 : 16} /> WhatsApp
       </a>
       <a
-        href={`tel:${tel}`}
+        href={tel}
         onClick={(e) => e.stopPropagation()}
-        className={`flex items-center justify-center gap-1.5 rounded-xl border border-emerald-300 bg-white font-bold text-emerald-700 active:scale-[0.98] ${alto}`}
+        className={`flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white font-semibold text-emerald-700 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:scale-[0.98] ${alto}`}
       >
-        <span aria-hidden>📞</span> Llamar
+        <Phone size={size === "md" ? 17 : 15} /> Llamar
       </a>
     </div>
   );

@@ -2,8 +2,22 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  Search,
+  UserSearch,
+  UserCheck,
+  Cross,
+  Package,
+  HandCoins,
+  LifeBuoy,
+  MapPin,
+  Phone,
+  ExternalLink,
+  type LucideIcon,
+} from "lucide-react";
 import { cx } from "@/lib/format";
 import { waHref, telHref } from "@/lib/contacto";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 
 // Buscador en vivo sobre la Red Humanitaria de Datos (redayuda.eriktaveras.com).
 // No copiamos datos: se consultan en vivo vía /api/red y se enlazan a su fuente.
@@ -28,16 +42,16 @@ type RedItem = {
   tambien_en: number;
 };
 
-type Tipo = { value: string; label: string; emoji: string; badge: string };
+type Tipo = { value: string; label: string; Icon: LucideIcon; badge: string };
 
 const TIPOS: Tipo[] = [
-  { value: "", label: "Todos", emoji: "🔎", badge: "bg-slate-100 text-slate-600" },
-  { value: "persona_desaparecida", label: "Desaparecidos", emoji: "🔍", badge: "bg-peligro-100 text-peligro-700" },
-  { value: "persona_localizada", label: "Localizados", emoji: "✅", badge: "bg-emerald-100 text-emerald-700" },
-  { value: "persona_hospitalizada", label: "Hospitalizados", emoji: "🏥", badge: "bg-blue-100 text-blue-700" },
-  { value: "centro_acopio", label: "Acopio", emoji: "📦", badge: "bg-amber-100 text-amber-700" },
-  { value: "centro_donacion", label: "Donación", emoji: "💸", badge: "bg-violet-100 text-violet-700" },
-  { value: "recurso", label: "Recursos", emoji: "🤝", badge: "bg-teal-100 text-teal-700" },
+  { value: "", label: "Todos", Icon: Search, badge: "bg-slate-100 text-slate-600" },
+  { value: "persona_desaparecida", label: "Desaparecidos", Icon: UserSearch, badge: "bg-peligro-100 text-peligro-700" },
+  { value: "persona_localizada", label: "Localizados", Icon: UserCheck, badge: "bg-emerald-100 text-emerald-700" },
+  { value: "persona_hospitalizada", label: "Hospitalizados", Icon: Cross, badge: "bg-blue-100 text-blue-700" },
+  { value: "centro_acopio", label: "Acopio", Icon: Package, badge: "bg-amber-100 text-amber-700" },
+  { value: "centro_donacion", label: "Donación", Icon: HandCoins, badge: "bg-violet-100 text-violet-700" },
+  { value: "recurso", label: "Recursos", Icon: LifeBuoy, badge: "bg-teal-100 text-teal-700" },
 ];
 
 const TIPO_MAP: Record<string, Tipo> = Object.fromEntries(TIPOS.map((t) => [t.value, t]));
@@ -127,31 +141,35 @@ export default function RedBuscador() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Nombre, lugar, necesidad…"
-          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none focus:border-marca-500 focus:bg-white"
+          className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none transition-colors focus:border-marca-500 focus:bg-white focus:ring-2 focus:ring-marca-500/20"
           maxLength={180}
         />
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-          🔎
-        </span>
+        <Search
+          size={17}
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+        />
       </div>
 
       {/* Filtros por tipo */}
       <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-        {TIPOS.map((t) => (
-          <button
-            key={t.value || "todos"}
-            type="button"
-            onClick={() => setTipo(t.value)}
-            className={cx(
-              "whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-              tipo === t.value
-                ? "border-marca-600 bg-marca-600 text-white"
-                : "border-slate-200 bg-white text-slate-600",
-            )}
-          >
-            <span aria-hidden>{t.emoji}</span> {t.label}
-          </button>
-        ))}
+        {TIPOS.map((t) => {
+          const Icon = t.Icon;
+          return (
+            <button
+              key={t.value || "todos"}
+              type="button"
+              onClick={() => setTipo(t.value)}
+              className={cx(
+                "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
+                tipo === t.value
+                  ? "border-marca-600 bg-marca-600 text-white"
+                  : "border-slate-200 bg-white text-slate-600",
+              )}
+            >
+              <Icon size={14} /> {t.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Contador */}
@@ -234,17 +252,23 @@ export default function RedBuscador() {
 
 function Tarjeta({ it }: { it: RedItem }) {
   const t = TIPO_MAP[it.tipo ?? ""] ?? TIPO_MAP[""];
+  const TipoIcon = t.Icon;
   const nombre = it.persona || it.titulo || "Sin título";
   const enlace = it.url || RED_HOME;
-  const enlaceLabel = it.url ? "Ver en la fuente ↗" : "Ver en la Red ↗";
+  const enlaceLabel = it.url ? "Ver en la fuente" : "Ver en la Red";
   const wa = waHref(it.contacto, `Hola, los contacto desde Manos Venezuela por "${it.titulo ?? "ayuda"}".`);
   const tel = telHref(it.contacto);
 
   return (
-    <article className="rounded-2xl border border-slate-200 bg-white p-4">
+    <article className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-start justify-between gap-2">
-        <span className={cx("rounded-full px-2 py-0.5 text-[11px] font-semibold", t.badge)}>
-          <span aria-hidden>{t.emoji}</span> {t.label}
+        <span
+          className={cx(
+            "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold",
+            t.badge,
+          )}
+        >
+          <TipoIcon size={12} /> {t.label}
         </span>
         {it.tambien_en > 0 && (
           <span className="text-[11px] text-slate-400">también en {it.tambien_en + 1} fuentes</span>
@@ -254,30 +278,30 @@ function Tarjeta({ it }: { it: RedItem }) {
       <h3 className="mt-2 font-semibold text-slate-900">{nombre}</h3>
       {it.resumen && <p className="mt-0.5 line-clamp-3 text-sm text-slate-500">{it.resumen}</p>}
       {it.lugar && (
-        <p className="mt-1 text-xs text-slate-500">
-          <span aria-hidden>📍</span> {it.lugar}
+        <p className="mt-1 flex items-center gap-1 text-xs text-slate-500">
+          <MapPin size={13} className="shrink-0" /> {it.lugar}
           {it.ciudad && it.ciudad !== it.lugar ? `, ${it.ciudad}` : ""}
         </p>
       )}
 
       {(wa || tel) && (
-        <div className="mt-2 flex gap-2">
+        <div className="mt-2.5 flex gap-2">
           {wa && (
             <a
               href={wa}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 rounded-lg bg-emerald-600 py-2 text-center text-xs font-bold text-white"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-600 py-2 text-xs font-semibold text-white shadow-sm shadow-emerald-600/20 active:scale-[0.98]"
             >
-              💬 WhatsApp
+              <WhatsAppIcon size={15} /> WhatsApp
             </a>
           )}
           {tel && (
             <a
               href={tel}
-              className="flex-1 rounded-lg border border-slate-200 py-2 text-center text-xs font-bold text-slate-700"
+              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-slate-200 py-2 text-xs font-semibold text-slate-700 active:scale-[0.98]"
             >
-              📞 Llamar
+              <Phone size={14} /> Llamar
             </a>
           )}
         </div>
@@ -287,24 +311,24 @@ function Tarjeta({ it }: { it: RedItem }) {
         <span className="truncate text-[11px] text-slate-400">
           Fuente: {it.fuente ?? "Red Humanitaria"}
         </span>
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2">
           {it.lat != null && it.lng != null && (
             <a
               href={mapsUrl(it.lat, it.lng)}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white"
+              className="inline-flex items-center gap-1 rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white active:scale-[0.98]"
             >
-              📍 Mapa
+              <MapPin size={13} /> Mapa
             </a>
           )}
           <a
             href={enlace}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-semibold text-marca-600"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-marca-600"
           >
-            {enlaceLabel}
+            {enlaceLabel} <ExternalLink size={12} />
           </a>
         </div>
       </div>

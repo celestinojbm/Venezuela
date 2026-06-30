@@ -9,6 +9,7 @@ import RequestCard from "@/components/RequestCard";
 import VolunteerCard from "@/components/VolunteerCard";
 import RedBuscador from "@/components/RedBuscador";
 import AlertaSismica from "@/components/AlertaSismica";
+import { Siren, ChevronRight, Globe, Hand, HeartHandshake } from "lucide-react";
 import { cx } from "@/lib/format";
 import { telVE } from "@/lib/contacto";
 import { URGENCIA_MAP } from "@/lib/constants";
@@ -110,30 +111,41 @@ export default function HomePage() {
 
       <Link
         href="/guia"
-        className="flex items-center justify-between rounded-2xl bg-peligro-600 px-4 py-3 text-white"
+        className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-peligro-600 to-peligro-700 px-4 py-3 text-white shadow-sm shadow-peligro-600/25"
       >
-        <span className="text-sm font-bold">🆘 Emergencias y guía de seguridad</span>
-        <span aria-hidden>→</span>
+        <span className="flex items-center gap-2 text-sm font-bold">
+          <Siren size={18} strokeWidth={2.5} /> Emergencias y guía de seguridad
+        </span>
+        <ChevronRight size={18} />
       </Link>
 
       <div className="flex rounded-xl bg-slate-100 p-1 text-sm font-semibold">
         <button
           onClick={() => setTab("red")}
-          className={cx("flex-1 rounded-lg py-2", tab === "red" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500")}
+          className={cx(
+            "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 transition-colors",
+            tab === "red" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500",
+          )}
         >
-          🌐 Red
+          <Globe size={16} /> Red
         </button>
         <button
           onClick={() => setTab("necesidades")}
-          className={cx("flex-1 rounded-lg py-2", tab === "necesidades" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500")}
+          className={cx(
+            "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 transition-colors",
+            tab === "necesidades" ? "bg-white text-marca-700 shadow-sm" : "text-slate-500",
+          )}
         >
-          🆘 Necesito
+          <Hand size={16} /> Necesito
         </button>
         <button
           onClick={() => setTab("voluntarios")}
-          className={cx("flex-1 rounded-lg py-2", tab === "voluntarios" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500")}
+          className={cx(
+            "flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 transition-colors",
+            tab === "voluntarios" ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500",
+          )}
         >
-          🤝 Ayudar
+          <HeartHandshake size={16} /> Ayudar
         </button>
       </div>
 

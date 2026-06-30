@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Siren, LocateFixed, MapPin, Phone, Map as MapIcon } from "lucide-react";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 
 type Pos = { lat: number; lng: number; acc: number | null };
 
@@ -45,8 +47,10 @@ export default function EmergenciaUbicacion() {
   const waText = pos ? `🆘 Necesito ayuda urgente. Esta es mi ubicación: ${mapsUrl}` : "";
 
   return (
-    <section className="rounded-2xl border-2 border-peligro-300 bg-peligro-50 p-4">
-      <h2 className="text-lg font-extrabold text-peligro-700">🆘 Comparte tu ubicación</h2>
+    <section className="rounded-2xl border-2 border-peligro-200 bg-peligro-50 p-4">
+      <h2 className="flex items-center gap-2 text-lg font-extrabold text-peligro-700">
+        <Siren size={20} strokeWidth={2.5} /> Comparte tu ubicación
+      </h2>
       <p className="mt-1 text-sm text-peligro-700/80">
         Si estás en peligro o atrapado/a, capta tu ubicación y compártela con quien pueda
         ayudarte, o llama a emergencias.
@@ -56,15 +60,17 @@ export default function EmergenciaUbicacion() {
         <button
           onClick={capturar}
           disabled={buscando}
-          className="mt-3 w-full rounded-xl bg-peligro-600 py-3.5 text-sm font-bold text-white disabled:opacity-60"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-peligro-600 py-3.5 text-sm font-bold text-white shadow-sm shadow-peligro-600/25 active:scale-[0.99] disabled:opacity-60"
         >
-          {buscando ? "Obteniendo tu ubicación…" : "📍 Captar mi ubicación"}
+          <LocateFixed size={18} /> {buscando ? "Obteniendo tu ubicación…" : "Captar mi ubicación"}
         </button>
       ) : (
         <div className="mt-3 space-y-2">
           <div className="rounded-xl bg-white px-3 py-2 text-sm">
-            <div className="font-semibold text-slate-800">📍 Tu ubicación</div>
-            <div className="text-xs text-slate-500">
+            <div className="flex items-center gap-1.5 font-semibold text-slate-800">
+              <MapPin size={15} /> Tu ubicación
+            </div>
+            <div className="mt-0.5 text-xs text-slate-500">
               Lat {pos.lat.toFixed(5)}, Lng {pos.lng.toFixed(5)}
               {pos.acc != null ? ` · precisión ~${Math.round(pos.acc)} m` : ""}
             </div>
@@ -74,23 +80,23 @@ export default function EmergenciaUbicacion() {
             href={`https://wa.me/?text=${encodeURIComponent(waText)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="block rounded-xl bg-emerald-600 py-3 text-center text-sm font-bold text-white"
+            className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-sm shadow-emerald-600/20 active:scale-[0.99]"
           >
-            💬 Compartir mi ubicación por WhatsApp
+            <WhatsAppIcon size={18} /> Compartir mi ubicación por WhatsApp
           </a>
           <a
             href={mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="block rounded-xl border border-slate-200 bg-white py-3 text-center text-sm font-bold text-slate-700"
+            className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-700 active:scale-[0.99]"
           >
-            🗺️ Abrir en Google Maps
+            <MapIcon size={17} /> Abrir en Google Maps
           </a>
           <a
             href="tel:911"
-            className="block rounded-xl bg-peligro-600 py-3 text-center text-sm font-bold text-white"
+            className="flex items-center justify-center gap-2 rounded-xl bg-peligro-600 py-3 text-sm font-bold text-white active:scale-[0.99]"
           >
-            📞 Llamar al 911
+            <Phone size={17} /> Llamar al 911
           </a>
           <button
             onClick={capturar}

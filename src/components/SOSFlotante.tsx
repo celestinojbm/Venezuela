@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { Siren, Phone } from "lucide-react";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { useSupabase } from "@/components/providers/SupabaseProvider";
 
 // Botón flotante "Tengo una emergencia": se puede arrastrar a cualquier parte
@@ -87,12 +89,10 @@ export default function SOSFlotante() {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         style={{ left: pos.x, top: pos.y, width: BTN_W, height: BTN_H, touchAction: "none" }}
-        className="fixed z-50 flex select-none items-center justify-center gap-2 rounded-full bg-peligro-600 text-white shadow-xl ring-4 ring-peligro-600/25 active:scale-95"
+        className="fixed z-50 flex select-none items-center justify-center gap-2 rounded-full bg-peligro-600 text-white shadow-xl shadow-peligro-600/30 ring-4 ring-peligro-600/20 active:scale-95"
         aria-label="Tengo una emergencia"
       >
-        <span className="text-xl" aria-hidden>
-          🆘
-        </span>
+        <Siren size={20} strokeWidth={2.5} />
         <span className="text-sm font-extrabold text-white">Tengo una emergencia</span>
       </button>
 
@@ -215,7 +215,9 @@ function SOSModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
-          <h2 className="text-lg font-extrabold text-peligro-700">🆘 Tengo una emergencia</h2>
+          <h2 className="flex items-center gap-2 text-lg font-extrabold text-peligro-700">
+            <Siren size={20} strokeWidth={2.5} /> Tengo una emergencia
+          </h2>
           <button onClick={onClose} aria-label="Cerrar" className="text-2xl leading-none text-slate-400">
             ×
           </button>
@@ -231,15 +233,15 @@ function SOSModal({
               href={`https://wa.me/?text=${encodeURIComponent(waText)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-xl bg-emerald-600 py-3.5 text-center text-sm font-bold text-white"
+              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-center text-sm font-bold text-white"
             >
-              💬 Compartir por WhatsApp
+              <WhatsAppIcon size={18} /> Compartir por WhatsApp
             </a>
             <a
               href="tel:911"
-              className="block rounded-xl bg-peligro-600 py-3.5 text-center text-sm font-bold text-white"
+              className="flex items-center justify-center gap-2 rounded-xl bg-peligro-600 py-3.5 text-center text-sm font-bold text-white"
             >
-              📞 Llamar al 911
+              <Phone size={17} /> Llamar al 911
             </a>
             {exito.id && (
               <Link
@@ -264,9 +266,9 @@ function SOSModal({
             {/* Llamar 911: lo más rápido en una emergencia real */}
             <a
               href="tel:911"
-              className="mt-3 block rounded-xl bg-peligro-600 py-3 text-center text-sm font-extrabold text-white"
+              className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-peligro-600 py-3 text-center text-sm font-extrabold text-white"
             >
-              📞 Llamar al 911 ahora
+              <Phone size={17} /> Llamar al 911 ahora
             </a>
 
             {/* Estado de la ubicación */}
@@ -337,9 +339,9 @@ function SOSModal({
                 href={`https://wa.me/?text=${encodeURIComponent(waText)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 block rounded-xl border border-emerald-200 bg-emerald-50 py-3 text-center text-sm font-bold text-emerald-700"
+                className="mt-2 flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-3 text-center text-sm font-bold text-emerald-700"
               >
-                💬 O comparte por WhatsApp ahora
+                <WhatsAppIcon size={17} /> O comparte por WhatsApp ahora
               </a>
             )}
           </>

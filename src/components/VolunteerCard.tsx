@@ -1,15 +1,18 @@
+import { Phone, MapPin, HeartHandshake } from "lucide-react";
 import type { VolunteerListing } from "@/lib/types";
 import { CategoryBadge } from "@/components/Badges";
+import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { enlaceWhatsApp, tiempoRelativo } from "@/lib/format";
+import { telHref } from "@/lib/contacto";
 
 export default function VolunteerCard({ vol }: { vol: VolunteerListing }) {
-  const tel = vol.contact_phone?.replace(/[^\d+]/g, "");
+  const tel = telHref(vol.contact_phone) ?? `tel:${vol.contact_phone?.replace(/[^\d+]/g, "")}`;
 
   return (
     <div className="rounded-2xl border border-emerald-100 bg-white p-4 shadow-sm">
       <div className="mb-2 flex flex-wrap items-center gap-1.5">
         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
-          🤝 Ofrece ayuda
+          <HeartHandshake size={13} /> Ofrece ayuda
         </span>
         <CategoryBadge value={vol.category} />
       </div>
@@ -25,7 +28,7 @@ export default function VolunteerCard({ vol }: { vol: VolunteerListing }) {
         <span className="flex items-center gap-1 truncate">
           {vol.location_text ? (
             <>
-              <span aria-hidden>📍</span>
+              <MapPin size={13} className="shrink-0" />
               <span className="truncate">{vol.location_text}</span>
             </>
           ) : (
@@ -44,16 +47,16 @@ export default function VolunteerCard({ vol }: { vol: VolunteerListing }) {
             )}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-blue-600 py-3 text-sm font-bold text-white active:scale-[0.98]"
+            className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white shadow-sm shadow-emerald-600/20 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:scale-[0.98]"
           >
-            <span aria-hidden>💬</span> Contactar
+            <WhatsAppIcon size={18} /> Contactar
           </a>
           <a
-            href={`tel:${tel}`}
+            href={tel}
             aria-label="Llamar"
-            className="grid h-11 w-12 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-lg text-slate-600 active:scale-[0.98]"
+            className="grid h-11 w-12 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 transition-transform active:scale-[0.98]"
           >
-            📞
+            <Phone size={18} />
           </a>
         </div>
       )}

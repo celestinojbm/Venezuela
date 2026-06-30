@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Siren, Phone, ArrowLeft } from "lucide-react";
 import EmergenciaUbicacion from "@/components/EmergenciaUbicacion";
 import AlertaSismica from "@/components/AlertaSismica";
 
@@ -21,8 +22,8 @@ const CONSEJOS = [
 export default function GuiaPage() {
   return (
     <div className="space-y-6 px-4 py-4">
-      <Link href="/" className="text-sm font-medium text-slate-400">
-        ← Volver
+      <Link href="/" className="inline-flex items-center gap-1 text-sm font-medium text-slate-400">
+        <ArrowLeft size={16} /> Volver
       </Link>
 
       <AlertaSismica />
@@ -30,7 +31,9 @@ export default function GuiaPage() {
       <EmergenciaUbicacion />
 
       <section>
-        <h1 className="text-xl font-bold text-slate-900">🆘 Emergencias</h1>
+        <h1 className="flex items-center gap-2 text-xl font-bold text-slate-900">
+          <Siren size={22} className="text-peligro-600" /> Emergencias
+        </h1>
         <p className="mt-1 text-sm text-slate-500">
           Ante una emergencia médica, incendio o rescate, llama siempre a los organismos
           oficiales. Toca un número para llamar.
@@ -48,8 +51,8 @@ export default function GuiaPage() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xl font-extrabold text-peligro-700">{e.numero}</span>
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-peligro-600 text-white" aria-hidden>
-                  📞
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-peligro-600 text-white">
+                  <Phone size={17} />
                 </span>
               </div>
             </a>
