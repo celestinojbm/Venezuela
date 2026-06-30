@@ -22,7 +22,8 @@ html {
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
-  font-family: Arial, "Helvetica Neue", Helvetica, system-ui, sans-serif;
+  font-family: var(--font-public-sans), system-ui, -apple-system, "Segoe UI",
+    Roboto, Helvetica, Arial, sans-serif;
 }
 
 /* Asegura que el mapa ocupe su contenedor. */

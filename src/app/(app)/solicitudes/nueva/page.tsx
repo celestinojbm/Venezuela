@@ -259,7 +259,7 @@ function Formulario() {
           outline: none;
         }
         .entrada:focus {
-          border-color: #f97316;
+          border-color: #1a56db;
           background: #fff;
         }
       `}</style>

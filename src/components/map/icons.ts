@@ -46,7 +46,7 @@ export function iconoRed(tipo: string): L.DivIcon {
   return pin(RED_COLOR[tipo] ?? "#2563eb", 28);
 }
 
-/** Marcador para el punto que el usuario está seleccionando (naranja de marca). */
+/** Marcador para el punto que el usuario está seleccionando (azul de marca). */
 export function iconoSeleccion(): L.DivIcon {
-  return pin("#ea580c", 32);
+  return pin("#1A56DB", 32);
 }
