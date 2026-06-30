@@ -3,9 +3,12 @@
 // muestra atribuidos a su fuente. Este route corre en el servidor (sin CORS),
 // normaliza la respuesta y cachea unos segundos para no saturar el nodo.
 
+import { telVE } from "@/lib/contacto";
+
 export const dynamic = "force-dynamic";
 
 const RED_API = "https://redayuda.eriktaveras.com/api/records/search";
+const VENTANA = 240; // máx. de resultados que reordenamos (contactables primero)
 
 type Raw = Record<string, unknown>;
 
@@ -56,6 +59,32 @@ function normalizar(row: Raw) {
   };
 }
 
+// Trae una página del upstream (máx. 100). Devuelve results + metadatos, o null.
+async function traerPagina(q: string, tipo: string, offset: number) {
+  const upstream = new URL(RED_API);
+  if (q) upstream.searchParams.set("q", q);
+  upstream.searchParams.set("limit", "100");
+  upstream.searchParams.set("offset", String(offset));
+  if (tipo) upstream.searchParams.set("record_type", tipo);
+
+  const r = await fetch(upstream, {
+    headers: {
+      accept: "application/json",
+      "user-agent": "manos-venezuela/1.0 (+https://www.manosvenezuela.com)",
+    },
+    signal: AbortSignal.timeout(9000),
+    next: { revalidate: 45 }, // cacheado: la ventana se reconstruye solo cada 45s
+  });
+  if (!r.ok) return null;
+  const data = (await r.json()) as Raw;
+  return {
+    results: Array.isArray(data.results) ? (data.results as Raw[]) : [],
+    total: typeof data.total_matches === "number" ? data.total_matches : 0,
+    tipos: Array.isArray(data.record_types) ? (data.record_types as string[]) : [],
+    fuentes: typeof data.source_count === "number" ? data.source_count : null,
+  };
+}
+
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") ?? "").slice(0, 180);
@@ -63,46 +92,51 @@ export async function GET(req: Request) {
   const limit = clampInt(searchParams.get("limit"), 24, 1, 60);
   const offset = clampInt(searchParams.get("offset"), 0, 0, 100_000);
 
-  const upstream = new URL(RED_API);
-  if (q) upstream.searchParams.set("q", q);
-  upstream.searchParams.set("limit", String(limit));
-  upstream.searchParams.set("offset", String(offset));
-  if (tipo) upstream.searchParams.set("record_type", tipo);
-
   try {
-    const r = await fetch(upstream, {
-      headers: {
-        accept: "application/json",
-        "user-agent": "manos-venezuela/1.0 (+https://www.manosvenezuela.com)",
-      },
-      signal: AbortSignal.timeout(9000),
-      // Caché breve a nivel de fetch: alivia el nodo si varios buscan lo mismo.
-      next: { revalidate: 45 },
-    });
-
-    if (!r.ok) {
-      return json({ error: "red_no_disponible", items: [], total: 0 }, 200);
+    // 1) Trae una ventana de hasta VENTANA resultados (paginando el upstream).
+    const ventana: ReturnType<typeof normalizar>[] = [];
+    let total = 0;
+    let tipos: string[] = [];
+    let fuentes: number | null = null;
+    for (let off = 0; off < VENTANA; off += 100) {
+      const pagina = await traerPagina(q, tipo, off);
+      if (!pagina) {
+        if (off === 0) {
+          return json({ error: "red_no_disponible", items: [], total: 0, has_more: false }, 200);
+        }
+        break;
+      }
+      if (off === 0) {
+        total = pagina.total;
+        tipos = pagina.tipos;
+        fuentes = pagina.fuentes;
+      }
+      ventana.push(...pagina.results.map(normalizar).filter((it) => it.titulo));
+      if (pagina.results.length < 100) break; // ya no hay más resultados
     }
 
-    const data = (await r.json()) as Raw;
-    const results = Array.isArray(data.results) ? (data.results as Raw[]) : [];
-    const items = results.map(normalizar).filter((it) => it.titulo);
+    // 2) Reordena estable: los que tienen WhatsApp primero (global, no por página).
+    const con = ventana.filter((it) => telVE(it.contacto));
+    const sin = ventana.filter((it) => !telVE(it.contacto));
+    const ordenados = [...con, ...sin];
 
-    return json(
-      {
-        query: str(data.query) ?? q,
-        total: typeof data.total_matches === "number" ? data.total_matches : items.length,
-        count: items.length,
-        offset,
-        limit,
-        next_offset: offset + items.length,
-        tipos: Array.isArray(data.record_types) ? data.record_types : [],
-        fuentes: typeof data.source_count === "number" ? data.source_count : null,
-        items,
-      },
-      200,
-    );
+    // 3) Pagina sobre la lista YA ordenada: estable entre cargas (no se reacomoda).
+    const slice = ordenados.slice(offset, offset + limit);
+    const has_more = offset + limit < ordenados.length;
+
+    return json({
+      query: q,
+      total: total || ordenados.length,
+      ventana: ordenados.length,
+      count: slice.length,
+      offset,
+      limit,
+      has_more,
+      tipos,
+      fuentes,
+      items: slice,
+    });
   } catch {
-    return json({ error: "fetch", items: [], total: 0 }, 200);
+    return json({ error: "fetch", items: [], total: 0, has_more: false }, 200);
   }
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { cx } from "@/lib/format";
-import { waHref, telHref, telVE } from "@/lib/contacto";
+import { waHref, telHref } from "@/lib/contacto";
 
 // Buscador en vivo sobre la Red Humanitaria de Datos (redayuda.eriktaveras.com).
 // No copiamos datos: se consultan en vivo vía /api/red y se enlazan a su fuente.
@@ -59,6 +59,7 @@ export default function RedBuscador() {
   const [cargando, setCargando] = useState(true);
   const [cargandoMas, setCargandoMas] = useState(false);
   const [error, setError] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
   const reqId = useRef(0);
 
   // Anti-rebote del texto: esperamos a que el usuario deje de escribir.
@@ -85,11 +86,13 @@ export default function RedBuscador() {
         if (id !== reqId.current) return; // llegó una respuesta vieja: la ignoramos
         if (data.error) {
           setError(true);
+          setHasMore(false);
           if (reset) setItems([]);
           return;
         }
         setTotal(typeof data.total === "number" ? data.total : null);
         setFuentes(typeof data.fuentes === "number" ? data.fuentes : null);
+        setHasMore(Boolean(data.has_more));
         setItems((prev) => (reset ? data.items : [...prev, ...data.items]));
       } catch {
         if (id === reqId.current) {
@@ -111,14 +114,9 @@ export default function RedBuscador() {
     traer(0, true);
   }, [traer]);
 
-  const hayMas = items.length > 0 && total !== null && items.length < total;
-
-  // Mostramos primero los que tienen WhatsApp (orden estable: dentro de cada
-  // grupo se conserva el orden de relevancia que devolvió la red).
-  const itemsMostrados = useMemo(
-    () => [...items].sort((a, b) => (telVE(a.contacto) ? 0 : 1) - (telVE(b.contacto) ? 0 : 1)),
-    [items],
-  );
+  // El servidor ya devuelve los resultados ordenados (con WhatsApp primero) y
+  // paginados de forma estable, así que solo seguimos su orden.
+  const hayMas = items.length > 0 && hasMore;
 
   return (
     <div className="space-y-4">
@@ -189,7 +187,7 @@ export default function RedBuscador() {
         </p>
       ) : (
         <div className="space-y-3">
-          {itemsMostrados.map((it, i) => (
+          {items.map((it, i) => (
             <Tarjeta key={`${it.id ?? "x"}-${i}`} it={it} />
           ))}
 
@@ -201,6 +199,13 @@ export default function RedBuscador() {
             >
               {cargandoMas ? "Cargando…" : "Cargar más"}
             </button>
+          )}
+
+          {!hayMas && total !== null && items.length < total && (
+            <p className="pt-1 text-center text-[11px] text-slate-400">
+              Mostrando los primeros {items.length} (con contacto arriba). Refiná la búsqueda para
+              ver más.
+            </p>
           )}
         </div>
       )}
