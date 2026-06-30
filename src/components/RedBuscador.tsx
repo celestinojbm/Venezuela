@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { cx } from "@/lib/format";
-import { waHref, telHref } from "@/lib/contacto";
+import { waHref, telHref, telVE } from "@/lib/contacto";
 
 // Buscador en vivo sobre la Red Humanitaria de Datos (redayuda.eriktaveras.com).
 // No copiamos datos: se consultan en vivo vía /api/red y se enlazan a su fuente.
@@ -113,6 +113,13 @@ export default function RedBuscador() {
 
   const hayMas = items.length > 0 && total !== null && items.length < total;
 
+  // Mostramos primero los que tienen WhatsApp (orden estable: dentro de cada
+  // grupo se conserva el orden de relevancia que devolvió la red).
+  const itemsMostrados = useMemo(
+    () => [...items].sort((a, b) => (telVE(a.contacto) ? 0 : 1) - (telVE(b.contacto) ? 0 : 1)),
+    [items],
+  );
+
   return (
     <div className="space-y-4">
       {/* Buscador */}
@@ -182,7 +189,7 @@ export default function RedBuscador() {
         </p>
       ) : (
         <div className="space-y-3">
-          {items.map((it, i) => (
+          {itemsMostrados.map((it, i) => (
             <Tarjeta key={`${it.id ?? "x"}-${i}`} it={it} />
           ))}
 
