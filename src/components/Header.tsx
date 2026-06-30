@@ -19,7 +19,7 @@ export default function Header() {
 
       <Link
         href="/guia"
-        className="rounded-full bg-peligro-600 px-3 py-1.5 text-xs font-bold text-white"
+        className="rounded-full bg-blue-600 px-3 py-1.5 text-xs font-bold text-white"
       >
         🆘 Emergencias
       </Link>
