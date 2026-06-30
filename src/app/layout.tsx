@@ -1,16 +1,28 @@
 import type { Metadata, Viewport } from "next";
+import { Source_Serif_4, Public_Sans } from "next/font/google";
 import "./globals.css";
-import { SupabaseProvider } from "@/components/providers/SupabaseProvider";
-import Header from "@/components/Header";
-import BottomNav from "@/components/BottomNav";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
-import IndicadorOffline from "@/components/IndicadorOffline";
-import SOSFlotante from "@/components/SOSFlotante";
+
+// Cuerpo / interfaz.
+const publicSans = Public_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-public-sans",
+  display: "swap",
+});
+
+// Titulares (serif institucional).
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  variable: "--font-source-serif",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Manos Venezuela — Ayuda directa",
   description:
-    "Plataforma solidaria para conectar a personas voluntarias con damnificados por la catástrofe en Venezuela. Publica o encuentra ayuda cerca de ti.",
+    "Plataforma solidaria para conectar a personas voluntarias con damnificados por el terremoto de junio de 2026 en Venezuela. Publica o encuentra ayuda cerca de ti.",
   manifest: "/manifest.webmanifest",
   applicationName: "Manos Venezuela",
   appleWebApp: {
@@ -25,7 +37,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ea580c",
+  themeColor: "#0B3D91",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -37,18 +49,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es">
+    <html lang="es" className={`${publicSans.variable} ${sourceSerif.variable}`}>
       <body className="min-h-screen font-sans">
-        <SupabaseProvider>
-          <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col bg-white shadow-sm">
-            <IndicadorOffline />
-            <Header />
-            <main className="flex-1 pb-24">{children}</main>
-            <BottomNav />
-          </div>
-          <SOSFlotante />
-          <ServiceWorkerRegister />
-        </SupabaseProvider>
+        {children}
+        <ServiceWorkerRegister />
       </body>
     </html>
   );
