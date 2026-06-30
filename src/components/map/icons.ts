@@ -25,6 +25,29 @@ export function iconoSolicitud(category: CategoriaValue, urgency: UrgenciaValue)
   });
 }
 
+// Estilo de los marcadores de la Red por tipo de registro.
+const RED_ESTILO: Record<string, { emoji: string; color: string }> = {
+  centro_acopio: { emoji: "📦", color: "#d97706" },
+  centro_donacion: { emoji: "💸", color: "#7c3aed" },
+  recurso: { emoji: "🤝", color: "#0d9488" },
+};
+
+/** Marcador relleno (color por tipo) para los puntos de la Red. */
+export function iconoRed(tipo: string): L.DivIcon {
+  const e = RED_ESTILO[tipo] ?? { emoji: "📍", color: "#2563eb" };
+  return L.divIcon({
+    className: "",
+    html: `<div style="
+      width:30px;height:30px;border-radius:50%;
+      background:${e.color};border:2px solid #fff;
+      display:flex;align-items:center;justify-content:center;
+      font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,.3)">${e.emoji}</div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15],
+    popupAnchor: [0, -15],
+  });
+}
+
 /** Marcador para el punto que el usuario está seleccionando. */
 export function iconoSeleccion(): L.DivIcon {
   return L.divIcon({

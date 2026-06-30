@@ -5,16 +5,38 @@ import Link from "next/link";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 import type { LatLngBoundsExpression } from "leaflet";
 import { CENTRO_VENEZUELA, ZOOM_INICIAL } from "@/lib/constants";
-import { iconoSolicitud } from "@/components/map/icons";
+import { iconoSolicitud, iconoRed } from "@/components/map/icons";
 import { CATEGORIA_MAP, URGENCIA_MAP } from "@/lib/constants";
 import type { HelpRequest } from "@/lib/types";
 
+export type RedPunto = {
+  id: string | null;
+  tipo: string | null;
+  titulo: string | null;
+  resumen: string | null;
+  lugar: string | null;
+  contacto?: string | null;
+  lat: number | null;
+  lng: number | null;
+  aprox?: boolean;
+  fuente: string | null;
+  url: string | null;
+};
+
+const RED_ETIQUETA: Record<string, string> = {
+  centro_acopio: "Centro de acopio",
+  centro_donacion: "Centro de donación",
+  recurso: "Recurso",
+};
+
 export default function RequestsMap({
   requests,
+  red = [],
   height = 420,
   enlazar = true,
 }: {
   requests: HelpRequest[];
+  red?: RedPunto[];
   height?: number | string;
   enlazar?: boolean;
 }) {
@@ -23,23 +45,38 @@ export default function RequestsMap({
     [requests],
   );
 
+  const redCoords = useMemo(
+    () => red.filter((p) => p.lat != null && p.lng != null),
+    [red],
+  );
+
   const bounds = useMemo<LatLngBoundsExpression | null>(() => {
-    if (conCoords.length === 0) return null;
-    return conCoords.map((r) => [r.lat as number, r.lng as number]) as LatLngBoundsExpression;
-  }, [conCoords]);
+    const pts = [
+      ...conCoords.map((r) => [r.lat as number, r.lng as number]),
+      ...redCoords.map((p) => [p.lat as number, p.lng as number]),
+    ];
+    if (pts.length === 0) return null;
+    return pts as LatLngBoundsExpression;
+  }, [conCoords, redCoords]);
+
+  const totalPuntos = conCoords.length + redCoords.length;
 
   // Si hay varios puntos, ajustamos a sus límites (bounds); si hay uno, lo
   // centramos; si no hay ninguno, mostramos todo el país. react-leaflet usa
   // center+zoom O bounds, no ambos a la vez.
+  const unico =
+    totalPuntos === 1
+      ? conCoords[0]
+        ? ([conCoords[0].lat as number, conCoords[0].lng as number] as [number, number])
+        : ([redCoords[0].lat as number, redCoords[0].lng as number] as [number, number])
+      : null;
+
   const posicion =
-    conCoords.length > 1 && bounds
+    totalPuntos > 1 && bounds
       ? { bounds }
       : {
-          center:
-            conCoords.length === 1
-              ? ([conCoords[0].lat as number, conCoords[0].lng as number] as [number, number])
-              : CENTRO_VENEZUELA,
-          zoom: conCoords.length === 1 ? 14 : ZOOM_INICIAL,
+          center: unico ?? CENTRO_VENEZUELA,
+          zoom: unico ? 14 : ZOOM_INICIAL,
         };
 
   return (
@@ -75,6 +112,47 @@ export default function RequestsMap({
                   >
                     Ver solicitud →
                   </Link>
+                )}
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+
+        {redCoords.map((p, i) => (
+          <Marker
+            key={`red-${p.id ?? i}`}
+            position={[p.lat as number, p.lng as number]}
+            icon={iconoRed(p.tipo ?? "recurso")}
+          >
+            <Popup>
+              <div className="min-w-[10rem]">
+                <div className="text-[11px] font-semibold uppercase text-slate-400">
+                  {RED_ETIQUETA[p.tipo ?? ""] ?? "Recurso"}
+                </div>
+                <div className="mt-0.5 text-sm font-bold text-slate-800">{p.titulo}</div>
+                {p.lugar && (
+                  <div className="mt-0.5 text-xs text-slate-500">
+                    📍 {p.lugar}
+                    {p.aprox ? " (ubicación aproximada)" : ""}
+                  </div>
+                )}
+                {p.contacto && (
+                  <a href={`tel:${p.contacto}`} className="mt-0.5 block text-xs font-semibold text-emerald-700">
+                    📞 {p.contacto}
+                  </a>
+                )}
+                {p.fuente && (
+                  <div className="mt-0.5 text-[11px] text-slate-400">Fuente: {p.fuente}</div>
+                )}
+                {p.url && (
+                  <a
+                    href={p.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-block text-xs font-semibold text-blue-600"
+                  >
+                    Ver en la fuente ↗
+                  </a>
                 )}
               </div>
             </Popup>
