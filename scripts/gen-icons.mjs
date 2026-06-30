@@ -30,7 +30,7 @@ function chunk(type, data) {
 }
 
 function makePng(size) {
-  const bg = [234, 88, 12]; // marca-600
+  const bg = [11, 61, 145]; // marca-700 / azul bandera #0B3D91
   const fg = [255, 255, 255];
   const cx = size / 2;
   const cy = size / 2;

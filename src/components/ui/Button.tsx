@@ -3,7 +3,13 @@ import { cx } from "@/lib/format";
 
 // Sistema único de botones. Mantiene los colores semánticos del proyecto:
 // primary = azul de marca · success = verde (ayudar) · danger = rojo (emergencia).
-export type ButtonVariant = "primary" | "secondary" | "success" | "danger" | "ghost";
+export type ButtonVariant =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "success-outline"
+  | "danger"
+  | "ghost";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const base =
@@ -14,6 +20,8 @@ const variantStyles: Record<ButtonVariant, string> = {
     "bg-marca-600 text-white shadow-sm shadow-marca-600/20 hover:bg-marca-700 focus-visible:ring-marca-500",
   success:
     "bg-emerald-600 text-white shadow-sm shadow-emerald-600/20 hover:bg-emerald-700 focus-visible:ring-emerald-500",
+  "success-outline":
+    "border border-emerald-200 bg-white text-emerald-700 hover:border-emerald-300 hover:bg-emerald-50 focus-visible:ring-emerald-500",
   danger:
     "bg-peligro-600 text-white shadow-sm shadow-peligro-600/25 hover:bg-peligro-700 focus-visible:ring-peligro-500",
   secondary:
