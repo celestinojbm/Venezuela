@@ -10,6 +10,7 @@ import VolunteerCard from "@/components/VolunteerCard";
 import RedBuscador from "@/components/RedBuscador";
 import AlertaSismica from "@/components/AlertaSismica";
 import { cx } from "@/lib/format";
+import { telVE } from "@/lib/contacto";
 import { URGENCIA_MAP } from "@/lib/constants";
 import type { HelpRequest, VolunteerListing } from "@/lib/types";
 
@@ -71,6 +72,9 @@ export default function HomePage() {
         )
       : requests;
     return [...f].sort((a, b) => {
+      // Los que tienen WhatsApp disponible van primero.
+      const wa = (telVE(a.contact_phone) ? 0 : 1) - (telVE(b.contact_phone) ? 0 : 1);
+      if (wa !== 0) return wa;
       const ua = URGENCIA_MAP[a.urgency]?.orden ?? 9;
       const ub = URGENCIA_MAP[b.urgency]?.orden ?? 9;
       if (ua !== ub) return ua - ub;
@@ -80,13 +84,20 @@ export default function HomePage() {
 
   const voluntariosVisibles = useMemo(() => {
     const qq = filtros.busqueda.trim().toLowerCase();
-    if (!qq) return voluntarios;
-    return voluntarios.filter(
-      (v) =>
-        v.title.toLowerCase().includes(qq) ||
-        v.description?.toLowerCase().includes(qq) ||
-        v.location_text?.toLowerCase().includes(qq),
-    );
+    const f = qq
+      ? voluntarios.filter(
+          (v) =>
+            v.title.toLowerCase().includes(qq) ||
+            v.description?.toLowerCase().includes(qq) ||
+            v.location_text?.toLowerCase().includes(qq),
+        )
+      : voluntarios;
+    return [...f].sort((a, b) => {
+      // Los que tienen WhatsApp disponible van primero.
+      const wa = (telVE(a.contact_phone) ? 0 : 1) - (telVE(b.contact_phone) ? 0 : 1);
+      if (wa !== 0) return wa;
+      return b.created_at.localeCompare(a.created_at);
+    });
   }, [voluntarios, filtros.busqueda]);
 
   if (!configured) return <SetupNotice />;

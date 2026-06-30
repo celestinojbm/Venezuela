@@ -92,33 +92,59 @@ export default function RequestsMap({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {conCoords.map((r) => (
-          <Marker
-            key={r.id}
-            position={[r.lat as number, r.lng as number]}
-            icon={iconoSolicitud(r.category, r.urgency)}
-          >
-            <Popup>
-              <div className="min-w-[10rem]">
-                <div className="text-[11px] font-semibold uppercase text-slate-400">
-                  {URGENCIA_MAP[r.urgency]?.label} · {CATEGORIA_MAP[r.category]?.label}
+        {conCoords.map((r) => {
+          const wa = waHref(r.contact_phone, `Hola, vi tu solicitud "${r.title}" en Manos Venezuela y quiero ayudarte.`);
+          const tel = telHref(r.contact_phone);
+          return (
+            <Marker
+              key={r.id}
+              position={[r.lat as number, r.lng as number]}
+              icon={iconoSolicitud(r.category, r.urgency)}
+            >
+              <Popup>
+                <div className="min-w-[11rem]">
+                  <div className="text-[11px] font-semibold uppercase text-slate-400">
+                    {URGENCIA_MAP[r.urgency]?.label} · {CATEGORIA_MAP[r.category]?.label}
+                  </div>
+                  <div className="mt-0.5 text-sm font-bold text-slate-800">{r.title}</div>
+                  {r.location_text && (
+                    <div className="mt-0.5 text-xs text-slate-500">📍 {r.location_text}</div>
+                  )}
+                  {(wa || tel) && (
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {wa && (
+                        <a
+                          href={wa}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-bold text-white"
+                        >
+                          💬 WhatsApp
+                        </a>
+                      )}
+                      {tel && (
+                        <a
+                          href={tel}
+                          className="rounded-md border border-slate-200 px-2 py-1 text-[11px] font-bold text-slate-700"
+                        >
+                          📞 Llamar
+                        </a>
+                      )}
+                    </div>
+                  )}
+                  {enlazar && (
+                    <Link
+                      href={`/solicitudes/${r.id}`}
+                      className="mt-2 inline-block text-xs font-semibold text-marca-600"
+                    >
+                      Ver solicitud →
+                    </Link>
+                  )}
                 </div>
-                <div className="mt-0.5 text-sm font-bold text-slate-800">{r.title}</div>
-                {r.location_text && (
-                  <div className="mt-0.5 text-xs text-slate-500">📍 {r.location_text}</div>
-                )}
-                {enlazar && (
-                  <Link
-                    href={`/solicitudes/${r.id}`}
-                    className="mt-2 inline-block text-xs font-semibold text-marca-600"
-                  >
-                    Ver solicitud →
-                  </Link>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          );
+        })}
 
         {redCoords.map((p, i) => {
           const etiqueta = RED_ETIQUETA[p.tipo ?? ""] ?? "Recurso";

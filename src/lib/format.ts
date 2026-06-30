@@ -1,5 +1,7 @@
 // Utilidades de formato.
 
+import { telVE } from "@/lib/contacto";
+
 /** Tiempo relativo en español: "hace 5 min", "hace 2 h", "hace 3 d". */
 export function tiempoRelativo(iso: string): string {
   const fecha = new Date(iso);
@@ -31,9 +33,10 @@ export function horaCorta(iso: string): string {
 
 /** Construye un enlace de WhatsApp a partir de un teléfono libre. */
 export function enlaceWhatsApp(telefono: string, mensaje?: string): string {
-  const limpio = telefono.replace(/[^\d]/g, "");
+  // Normaliza a formato internacional (ej. 0414xxxxxxx -> 58414xxxxxxx).
+  const numero = telVE(telefono) ?? telefono.replace(/[^\d]/g, "");
   const texto = mensaje ? `?text=${encodeURIComponent(mensaje)}` : "";
-  return `https://wa.me/${limpio}${texto}`;
+  return `https://wa.me/${numero}${texto}`;
 }
 
 /** Distancia aproximada en km entre dos coordenadas (fórmula de Haversine). */
