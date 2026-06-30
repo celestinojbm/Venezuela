@@ -15,8 +15,14 @@ body {
   overflow-x: hidden;
 }
 
+/* Letra base más grande para mejor legibilidad (escala todos los rem). */
+html {
+  font-size: 18px;
+}
+
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
+  font-family: Arial, "Helvetica Neue", Helvetica, system-ui, sans-serif;
 }
 
 /* Asegura que el mapa ocupe su contenedor. */

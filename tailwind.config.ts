@@ -26,7 +26,7 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["Arial", "Helvetica Neue", "Helvetica", "system-ui", "sans-serif"],
       },
     },
   },

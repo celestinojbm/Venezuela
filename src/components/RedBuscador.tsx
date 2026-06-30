@@ -254,9 +254,9 @@ function Tarjeta({ it }: { it: RedItem }) {
               href={mapsUrl(it.lat, it.lng)}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs font-semibold text-slate-500"
+              className="rounded-lg bg-blue-600 px-2.5 py-1 text-xs font-semibold text-white"
             >
-              Mapa
+              📍 Mapa
             </a>
           )}
           <a
