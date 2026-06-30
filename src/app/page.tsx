@@ -159,6 +159,12 @@ export default function HomePage() {
         </>
       ) : (
         <>
+          <p className="text-sm text-slate-500">
+            {tab === "necesidades"
+              ? "Pedidos de ayuda de personas damnificadas. Si necesitás algo, publicá tu solicitud."
+              : "Voluntarios que ofrecen ayuda (techo, transporte, comida…). Si podés ayudar, ofrecé lo tuyo aquí."}
+          </p>
+
           <Filters value={filtros} onChange={setFiltros} ocultarUrgencia={tab === "voluntarios"} />
 
           {tab === "voluntarios" && (
