@@ -4,10 +4,12 @@ import { Phone } from "lucide-react";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
 import { enlaceWhatsApp } from "@/lib/format";
 import { telHref } from "@/lib/contacto";
+import { buttonClasses } from "@/components/ui/Button";
 
 /**
  * Botones grandes de contacto directo: WhatsApp y Llamar.
  * Es la acción más importante de la app: conectar en 1 toque.
+ * Usa el sistema único de botones para mantener la misma calidad en toda la app.
  */
 export default function ContactButtons({
   phone,
@@ -19,7 +21,7 @@ export default function ContactButtons({
   size?: "sm" | "md";
 }) {
   const tel = telHref(phone) ?? `tel:${phone.replace(/[^\d+]/g, "")}`;
-  const alto = size === "md" ? "py-3 text-sm" : "py-2.5 text-xs";
+  const btnSize = size === "md" ? "md" : "sm";
 
   return (
     <div className="grid grid-cols-2 gap-2">
@@ -28,14 +30,14 @@ export default function ContactButtons({
         target="_blank"
         rel="noopener noreferrer"
         onClick={(e) => e.stopPropagation()}
-        className={`flex items-center justify-center gap-2 rounded-xl bg-emerald-600 font-semibold text-white shadow-sm shadow-emerald-600/20 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:scale-[0.98] ${alto}`}
+        className={buttonClasses({ variant: "success", size: btnSize, fullWidth: true })}
       >
         <WhatsAppIcon size={size === "md" ? 18 : 16} /> WhatsApp
       </a>
       <a
         href={tel}
         onClick={(e) => e.stopPropagation()}
-        className={`flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-white font-semibold text-emerald-700 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:scale-[0.98] ${alto}`}
+        className={buttonClasses({ variant: "success-outline", size: btnSize, fullWidth: true })}
       >
         <Phone size={size === "md" ? 17 : 15} /> Llamar
       </a>

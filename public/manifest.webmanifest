@@ -1,14 +1,14 @@
 {
   "name": "Manos Venezuela — Ayuda directa",
   "short_name": "Manos VE",
-  "description": "Conecta a personas voluntarias con damnificados por la catástrofe en Venezuela.",
+  "description": "Plataforma solidaria para conectar a personas voluntarias con damnificados por el terremoto de junio de 2026 en Venezuela. Publica o encuentra ayuda cerca de ti.",
   "lang": "es",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ffffff",
-  "theme_color": "#ea580c",
+  "theme_color": "#0B3D91",
   "icons": [
     { "src": "/icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },

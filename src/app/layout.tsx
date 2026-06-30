@@ -19,10 +19,14 @@ const sourceSerif = Source_Serif_4({
   display: "swap",
 });
 
+const SITE_URL = "https://manosvenezuela.com";
+const DESCRIPCION =
+  "Plataforma solidaria para conectar a personas voluntarias con damnificados por el terremoto de junio de 2026 en Venezuela. Publica o encuentra ayuda cerca de ti.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Manos Venezuela — Ayuda directa",
-  description:
-    "Plataforma solidaria para conectar a personas voluntarias con damnificados por el terremoto de junio de 2026 en Venezuela. Publica o encuentra ayuda cerca de ti.",
+  description: DESCRIPCION,
   manifest: "/manifest.webmanifest",
   applicationName: "Manos Venezuela",
   appleWebApp: {
@@ -33,6 +37,19 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icons/icon.svg",
     apple: "/icons/icon-192.png",
+  },
+  openGraph: {
+    type: "website",
+    locale: "es_VE",
+    url: SITE_URL,
+    siteName: "Manos Venezuela",
+    title: "Manos Venezuela — Ayuda directa entre vecinos",
+    description: DESCRIPCION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Manos Venezuela — Ayuda directa entre vecinos",
+    description: DESCRIPCION,
   },
 };
 
