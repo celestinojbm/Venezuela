@@ -9,7 +9,7 @@ import RequestCard from "@/components/RequestCard";
 import VolunteerCard from "@/components/VolunteerCard";
 import RedBuscador from "@/components/RedBuscador";
 import AlertaSismica from "@/components/AlertaSismica";
-import { Siren, ChevronRight, Globe, Hand, HeartHandshake, ExternalLink } from "lucide-react";
+import { Siren, ChevronRight, Globe, Hand, HeartHandshake, ExternalLink, HandHeart } from "lucide-react";
 import { cx } from "@/lib/format";
 import { telVE } from "@/lib/contacto";
 import { URGENCIA_MAP } from "@/lib/constants";
@@ -124,6 +124,14 @@ export default function HomePage() {
           <Siren size={18} strokeWidth={2.5} /> Emergencias y guía de seguridad
         </span>
         <ChevronRight size={18} />
+      </Link>
+
+      <Link
+        href="/landing"
+        className="flex items-center justify-center gap-1.5 rounded-xl bg-marca-50 px-4 py-2 text-xs font-semibold text-marca-700"
+      >
+        <HandHeart size={14} strokeWidth={2.4} /> Conoce el proyecto Manos Venezuela
+        <ChevronRight size={14} />
       </Link>
 
       <div className="flex rounded-xl bg-slate-100 p-1 text-sm font-semibold">
