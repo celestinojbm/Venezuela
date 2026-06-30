@@ -191,7 +191,7 @@ export default function RedBuscador() {
         </div>
       ) : error ? (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-          No pudimos conectar con la Red en este momento. Probá de nuevo en un momento.
+          No pudimos conectar con la Red en este momento. Intenta de nuevo en un momento.
           <button
             onClick={() => traer(0, true)}
             className="mt-2 block rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white"
@@ -201,7 +201,7 @@ export default function RedBuscador() {
         </div>
       ) : items.length === 0 ? (
         <p className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
-          Sin resultados. Probá con otro nombre, lugar o quitá el filtro.
+          Sin resultados. Prueba con otro nombre, lugar o quita el filtro.
         </p>
       ) : (
         <div className="space-y-3">
@@ -221,7 +221,7 @@ export default function RedBuscador() {
 
           {!hayMas && total !== null && items.length < total && (
             <p className="pt-1 text-center text-[11px] text-slate-400">
-              Mostrando los primeros {items.length} (con contacto arriba). Refiná la búsqueda para
+              Mostrando los primeros {items.length} (con contacto arriba). Afina la búsqueda para
               ver más.
             </p>
           )}

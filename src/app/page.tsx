@@ -9,13 +9,17 @@ import RequestCard from "@/components/RequestCard";
 import VolunteerCard from "@/components/VolunteerCard";
 import RedBuscador from "@/components/RedBuscador";
 import AlertaSismica from "@/components/AlertaSismica";
-import { Siren, ChevronRight, Globe, Hand, HeartHandshake } from "lucide-react";
+import { Siren, ChevronRight, Globe, Hand, HeartHandshake, ExternalLink } from "lucide-react";
 import { cx } from "@/lib/format";
 import { telVE } from "@/lib/contacto";
 import { URGENCIA_MAP } from "@/lib/constants";
 import type { HelpRequest, VolunteerListing } from "@/lib/types";
 
 type Pestana = "necesidades" | "voluntarios" | "red";
+
+// Lógica cruzada (a propósito):
+//  - "Necesito" muestra OFERTAS de voluntarios (a quién contactar para recibir ayuda).
+//  - "Ayudar"   muestra SOLICITUDES de damnificados (a quién ayudar).
 
 export default function HomePage() {
   const { configured, supabase } = useSupabase();
@@ -31,7 +35,8 @@ export default function HomePage() {
     setCargando(true);
     setError(null);
 
-    if (tab === "necesidades") {
+    if (tab === "voluntarios") {
+      // "Ayudar" muestra a quién necesita ayuda (solicitudes).
       let q = supabase
         .from("requests")
         .select("*")
@@ -44,6 +49,7 @@ export default function HomePage() {
       if (error) setError("No se pudieron cargar las solicitudes.");
       setRequests((data as HelpRequest[]) ?? []);
     } else {
+      // "Necesito" muestra ofertas de voluntarios disponibles.
       let q = supabase
         .from("volunteer_listings")
         .select("*")
@@ -52,7 +58,7 @@ export default function HomePage() {
         .limit(300);
       if (filtros.categoria !== "todas") q = q.eq("category", filtros.categoria);
       const { data, error } = await q;
-      if (error) setError("No se pudieron cargar los voluntarios.");
+      if (error) setError("No se pudieron cargar las ofertas de ayuda.");
       setVoluntarios((data as VolunteerListing[]) ?? []);
     }
     setCargando(false);
@@ -103,7 +109,8 @@ export default function HomePage() {
 
   if (!configured) return <SetupNotice />;
 
-  const lista = tab === "necesidades" ? requestsVisibles : voluntariosVisibles;
+  // En "Necesito" se ven ofertas; en "Ayudar" se ven solicitudes.
+  const lista = tab === "necesidades" ? voluntariosVisibles : requestsVisibles;
 
   return (
     <div className="space-y-4 px-4 py-4">
@@ -161,20 +168,20 @@ export default function HomePage() {
         <>
           <p className="text-sm text-slate-500">
             {tab === "necesidades"
-              ? "Pedidos de ayuda de personas damnificadas. Si necesitas algo, publica tu solicitud."
-              : "Voluntarios que ofrecen ayuda (techo, transporte, comida…). Si puedes ayudar, ofrece lo tuyo aquí."}
+              ? "Personas y voluntarios que ofrecen ayuda (techo, transporte, comida…). Contáctalos directo, o publica lo que necesitas."
+              : "Personas damnificadas que necesitan ayuda. Contáctalas para ayudar, o publica tu ofrecimiento."}
           </p>
 
-          <Filters value={filtros} onChange={setFiltros} ocultarUrgencia={tab === "voluntarios"} />
+          <Filters value={filtros} onChange={setFiltros} ocultarUrgencia={tab === "necesidades"} />
 
-          {tab === "voluntarios" && (
+          {tab === "necesidades" ? (
             <>
               <Link
-                href="/voluntarios/nuevo"
-                className="flex items-center justify-between rounded-2xl bg-emerald-600 px-4 py-3 text-white"
+                href="/solicitudes/nueva"
+                className="flex items-center justify-between rounded-2xl bg-marca-600 px-4 py-3 text-white"
               >
-                <span className="text-sm font-bold">🤝 ¿Puedes ayudar? Ofrécete como voluntario</span>
-                <span aria-hidden>→</span>
+                <span className="text-sm font-bold">¿No encuentras lo que necesitas? Publica tu solicitud</span>
+                <ChevronRight size={18} />
               </Link>
 
               <a
@@ -183,10 +190,22 @@ export default function HomePage() {
                 rel="noopener noreferrer"
                 className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-700"
               >
-                <span className="text-sm font-medium">🔗 Ver más voluntarios en Red de Emergencia</span>
-                <span className="text-xs text-slate-400" aria-hidden>sitio externo ↗</span>
+                <span className="text-sm font-medium">Ver más voluntarios en Red de Emergencia</span>
+                <span className="flex items-center gap-1 text-xs text-slate-400">
+                  externo <ExternalLink size={12} />
+                </span>
               </a>
             </>
+          ) : (
+            <Link
+              href="/voluntarios/nuevo"
+              className="flex items-center justify-between rounded-2xl bg-emerald-600 px-4 py-3 text-white"
+            >
+              <span className="flex items-center gap-2 text-sm font-bold">
+                <HeartHandshake size={18} /> ¿Puedes ayudar? Ofrécete como voluntario
+              </span>
+              <ChevronRight size={18} />
+            </Link>
           )}
 
           {cargando ? (
@@ -200,14 +219,14 @@ export default function HomePage() {
               <p className="text-xs font-medium text-slate-400">{lista.length} resultados</p>
               <ul className="space-y-3">
                 {tab === "necesidades"
-                  ? requestsVisibles.map((req) => (
-                      <li key={req.id}>
-                        <RequestCard req={req} />
-                      </li>
-                    ))
-                  : voluntariosVisibles.map((vol) => (
+                  ? voluntariosVisibles.map((vol) => (
                       <li key={vol.id}>
                         <VolunteerCard vol={vol} />
+                      </li>
+                    ))
+                  : requestsVisibles.map((req) => (
+                      <li key={req.id}>
+                        <RequestCard req={req} />
                       </li>
                     ))}
               </ul>
@@ -230,19 +249,20 @@ function ListaEsqueleto() {
 }
 
 function EstadoVacio({ tab }: { tab: Exclude<Pestana, "red"> }) {
+  // "Necesito" lista ofertas; "Ayudar" lista solicitudes.
+  const esNecesito = tab === "necesidades";
   return (
     <div className="rounded-2xl border border-dashed border-slate-200 px-4 py-12 text-center">
-      <div className="text-3xl">{tab === "necesidades" ? "🔍" : "🤝"}</div>
-      <p className="mt-2 text-sm font-medium text-slate-600">
-        {tab === "necesidades"
-          ? "No hay solicitudes con estos filtros"
-          : "Aún no hay voluntarios con estos filtros"}
+      <p className="text-sm font-medium text-slate-600">
+        {esNecesito
+          ? "Todavía no hay ofertas de ayuda con estos filtros."
+          : "Todavía no hay solicitudes con estos filtros."}
       </p>
       <Link
-        href={tab === "necesidades" ? "/solicitudes/nueva" : "/voluntarios/nuevo"}
+        href={esNecesito ? "/solicitudes/nueva" : "/voluntarios/nuevo"}
         className="mt-4 inline-block rounded-xl bg-marca-600 px-5 py-2.5 text-sm font-bold text-white"
       >
-        {tab === "necesidades" ? "Publicar una solicitud" : "Ofrecer mi ayuda"}
+        {esNecesito ? "Publicar lo que necesito" : "Ofrecer mi ayuda"}
       </Link>
     </div>
   );
