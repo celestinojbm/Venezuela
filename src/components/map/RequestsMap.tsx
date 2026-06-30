@@ -24,6 +24,7 @@ export type RedPunto = {
 };
 
 const RED_ETIQUETA: Record<string, string> = {
+  refugio: "Refugio",
   centro_acopio: "Centro de acopio",
   centro_donacion: "Centro de donación",
   recurso: "Recurso",

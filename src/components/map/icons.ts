@@ -27,6 +27,7 @@ export function iconoSolicitud(category: CategoriaValue, urgency: UrgenciaValue)
 
 // Estilo de los marcadores de la Red por tipo de registro.
 const RED_ESTILO: Record<string, { emoji: string; color: string }> = {
+  refugio: { emoji: "🏠", color: "#2563eb" },
   centro_acopio: { emoji: "📦", color: "#d97706" },
   centro_donacion: { emoji: "💸", color: "#7c3aed" },
   recurso: { emoji: "🤝", color: "#0d9488" },

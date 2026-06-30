@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import AuthGate from "@/components/AuthGate";
 import { useSupabase } from "@/components/providers/SupabaseProvider";
+import MapaDanos from "@/components/MapaDanos";
 import type { HelpRequest } from "@/lib/types";
 import type { RedPunto } from "@/components/map/RequestsMap";
 
@@ -85,6 +86,8 @@ function MapaInner() {
           </p>
         </>
       )}
+
+      <MapaDanos />
     </div>
   );
 }
@@ -92,6 +95,7 @@ function MapaInner() {
 function Leyenda() {
   const items = [
     { c: "#dc2626", t: "Solicitudes" },
+    { c: "#2563eb", t: "Refugios" },
     { c: "#d97706", t: "Acopio" },
     { c: "#7c3aed", t: "Donación" },
     { c: "#0d9488", t: "Recursos" },
