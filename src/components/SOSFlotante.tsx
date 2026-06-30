@@ -89,7 +89,7 @@ export default function SOSFlotante() {
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
         style={{ left: pos.x, top: pos.y, width: BTN_W, height: BTN_H, touchAction: "none" }}
-        className="fixed z-50 flex select-none items-center justify-center gap-2 rounded-full bg-peligro-600 text-white shadow-xl shadow-peligro-600/30 ring-4 ring-peligro-600/20 active:scale-95"
+        className="fixed z-50 flex select-none items-center justify-center gap-2 rounded-full bg-blue-600 text-white shadow-xl shadow-blue-600/30 ring-4 ring-blue-600/20 active:scale-95"
         aria-label="Tengo una emergencia"
       >
         <Siren size={20} strokeWidth={2.5} />

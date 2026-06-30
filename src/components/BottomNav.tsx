@@ -45,14 +45,18 @@ export default function BottomNav() {
                 href={item.href}
                 className={cx(
                   "flex flex-col items-center gap-1 rounded-xl py-1.5 text-[11px] font-bold transition-colors",
-                  item.destacado || activo ? "text-marca-600" : "text-slate-400 hover:text-slate-600",
+                  item.destacado
+                    ? "text-blue-600"
+                    : activo
+                      ? "text-marca-600"
+                      : "text-slate-400 hover:text-slate-600",
                 )}
               >
                 <span
                   className={cx(
                     "grid place-items-center",
                     item.destacado
-                      ? "h-11 w-11 -translate-y-2 rounded-2xl bg-marca-600 text-white shadow-lg shadow-marca-600/30"
+                      ? "h-11 w-11 -translate-y-2 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-600/30"
                       : "h-7 w-7",
                   )}
                 >
