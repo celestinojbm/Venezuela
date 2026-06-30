@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Button from "@/components/ui/Button";
+import Chip from "@/components/ui/Chip";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Search,
@@ -155,19 +157,14 @@ export default function RedBuscador() {
         {TIPOS.map((t) => {
           const Icon = t.Icon;
           return (
-            <button
+            <Chip
               key={t.value || "todos"}
-              type="button"
+              active={tipo === t.value}
               onClick={() => setTipo(t.value)}
-              className={cx(
-                "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors",
-                tipo === t.value
-                  ? "border-marca-600 bg-marca-600 text-white"
-                  : "border-slate-200 bg-white text-slate-600",
-              )}
+              className="shrink-0 whitespace-nowrap"
             >
               <Icon size={14} /> {t.label}
-            </button>
+            </Chip>
           );
         })}
       </div>
@@ -192,12 +189,9 @@ export default function RedBuscador() {
       ) : error ? (
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
           No pudimos conectar con la Red en este momento. Intenta de nuevo en un momento.
-          <button
-            onClick={() => traer(0, true)}
-            className="mt-2 block rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white"
-          >
+          <Button variant="secondary" size="sm" onClick={() => traer(0, true)} className="mt-2">
             Reintentar
-          </button>
+          </Button>
         </div>
       ) : items.length === 0 ? (
         <p className="rounded-2xl border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
@@ -210,13 +204,15 @@ export default function RedBuscador() {
           ))}
 
           {hayMas && (
-            <button
+            <Button
+              variant="secondary"
+              size="lg"
+              fullWidth
               onClick={() => traer(items.length, false)}
               disabled={cargandoMas}
-              className="w-full rounded-xl border border-slate-200 bg-white py-3 text-sm font-semibold text-marca-600 disabled:opacity-60"
             >
               {cargandoMas ? "Cargando…" : "Cargar más"}
-            </button>
+            </Button>
           )}
 
           {!hayMas && total !== null && items.length < total && (

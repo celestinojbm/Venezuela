@@ -1,7 +1,7 @@
 "use client";
 
 import { CATEGORIAS, URGENCIAS, type CategoriaValue, type UrgenciaValue } from "@/lib/constants";
-import { cx } from "@/lib/format";
+import UiChip from "@/components/ui/Chip";
 
 export interface FiltrosState {
   busqueda: string;
@@ -104,17 +104,8 @@ function Chip({
   children: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cx(
-        "shrink-0 whitespace-nowrap rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
-        activo
-          ? "border-marca-600 bg-marca-600 text-white"
-          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300",
-      )}
-    >
+    <UiChip active={activo} onClick={onClick} className="shrink-0 whitespace-nowrap">
       {children}
-    </button>
+    </UiChip>
   );
 }

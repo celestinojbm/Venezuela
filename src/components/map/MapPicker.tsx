@@ -5,6 +5,7 @@ import { LocateFixed } from "lucide-react";
 import { MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { CENTRO_VENEZUELA, ZOOM_INICIAL } from "@/lib/constants";
 import { iconoSeleccion } from "@/components/map/icons";
+import Button from "@/components/ui/Button";
 
 type LatLng = [number, number];
 
@@ -105,14 +106,9 @@ export default function MapPicker({
       </div>
 
       <div className="flex items-center justify-between gap-2">
-        <button
-          type="button"
-          onClick={usarMiUbicacion}
-          disabled={buscando}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 disabled:opacity-60"
-        >
+        <Button variant="secondary" size="sm" onClick={usarMiUbicacion} disabled={buscando}>
           <LocateFixed size={15} /> {buscando ? "Buscando…" : "Usar mi ubicación"}
-        </button>
+        </Button>
         <span className="text-[11px] text-slate-400">
           {value
             ? `Lat ${value[0].toFixed(4)}, Lng ${value[1].toFixed(4)}`

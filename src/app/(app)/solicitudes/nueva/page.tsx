@@ -11,7 +11,8 @@ import {
   type CategoriaValue,
   type UrgenciaValue,
 } from "@/lib/constants";
-import { cx } from "@/lib/format";
+import Button from "@/components/ui/Button";
+import Chip from "@/components/ui/Chip";
 
 const MapPicker = dynamic(() => import("@/components/map/MapPicker"), {
   ssr: false,
@@ -148,19 +149,9 @@ function Formulario() {
         <Etiqueta>Categoría</Etiqueta>
         <div className="flex flex-wrap gap-2">
           {CATEGORIAS.map((c) => (
-            <button
-              key={c.value}
-              type="button"
-              onClick={() => setCategory(c.value)}
-              className={cx(
-                "rounded-full border px-3 py-1.5 text-xs font-medium",
-                category === c.value
-                  ? "border-marca-600 bg-marca-600 text-white"
-                  : "border-slate-200 bg-white text-slate-600",
-              )}
-            >
+            <Chip key={c.value} active={category === c.value} onClick={() => setCategory(c.value)}>
               <span aria-hidden>{c.emoji}</span> {c.label}
-            </button>
+            </Chip>
           ))}
         </div>
       </div>
@@ -169,19 +160,14 @@ function Formulario() {
         <Etiqueta>Urgencia</Etiqueta>
         <div className="flex flex-wrap gap-2">
           {URGENCIAS.map((u) => (
-            <button
+            <Chip
               key={u.value}
-              type="button"
+              tone="peligro"
+              active={urgency === u.value}
               onClick={() => setUrgency(u.value)}
-              className={cx(
-                "rounded-full border px-3 py-1.5 text-xs font-semibold",
-                urgency === u.value
-                  ? "border-peligro-600 bg-peligro-600 text-white"
-                  : "border-slate-200 bg-white text-slate-600",
-              )}
             >
               {u.label}
-            </button>
+            </Chip>
           ))}
         </div>
       </div>
@@ -240,13 +226,9 @@ function Formulario() {
         <p className="rounded-lg bg-peligro-50 px-3 py-2 text-sm text-peligro-700">{error}</p>
       )}
 
-      <button
-        type="submit"
-        disabled={cargando}
-        className="w-full rounded-xl bg-marca-600 py-3.5 text-sm font-bold text-white disabled:opacity-60"
-      >
+      <Button type="submit" variant="primary" size="lg" fullWidth disabled={cargando}>
         {cargando ? "Publicando…" : "Publicar solicitud"}
-      </button>
+      </Button>
 
       <style jsx global>{`
         .entrada {

@@ -11,6 +11,7 @@ import RedBuscador from "@/components/RedBuscador";
 import AlertaSismica from "@/components/AlertaSismica";
 import { Siren, ChevronRight, Globe, Hand, HeartHandshake, ExternalLink, HandHeart } from "lucide-react";
 import { cx } from "@/lib/format";
+import { buttonClasses } from "@/components/ui/Button";
 import { telVE } from "@/lib/contacto";
 import { URGENCIA_MAP } from "@/lib/constants";
 import type { HelpRequest, VolunteerListing } from "@/lib/types";
@@ -268,7 +269,10 @@ function EstadoVacio({ tab }: { tab: Exclude<Pestana, "red"> }) {
       </p>
       <Link
         href={esNecesito ? "/solicitudes/nueva" : "/voluntarios/nuevo"}
-        className="mt-4 inline-block rounded-xl bg-marca-600 px-5 py-2.5 text-sm font-bold text-white"
+        className={buttonClasses({
+          variant: esNecesito ? "primary" : "success",
+          className: "mt-4",
+        })}
       >
         {esNecesito ? "Publicar lo que necesito" : "Ofrecer mi ayuda"}
       </Link>
