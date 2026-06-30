@@ -6,7 +6,7 @@ import { cx } from "@/lib/format";
 
 const ITEMS = [
   { href: "/", label: "Inicio", icon: "🏠", match: (p: string) => p === "/" },
-  { href: "/mapa", label: "Mapa", icon: "🗺️", match: (p: string) => p.startsWith("/mapa") },
+  { href: "/mapa", label: "Mapas", icon: "🗺️", match: (p: string) => p.startsWith("/mapa") },
   {
     href: "/publicar",
     label: "Publicar",
@@ -34,7 +34,7 @@ export default function BottomNav() {
               <Link
                 href={item.href}
                 className={cx(
-                  "flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-medium transition-colors",
+                  "flex flex-col items-center gap-0.5 rounded-xl py-1.5 text-[11px] font-bold transition-colors",
                   item.destacado
                     ? "text-marca-600"
                     : activo

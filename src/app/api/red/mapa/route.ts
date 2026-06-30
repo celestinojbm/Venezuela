@@ -83,13 +83,49 @@ async function buscar(opts: { record_type?: string; q?: string; tipoForzado?: st
   }
 }
 
+// Opción 2: coordenadas exactas desde la API de Venezuela Solidaria.
+// Esa fuente ya llega por la Red, pero a veces sin coordenadas; su API propia sí
+// las trae, así que la usamos SOLO para afinar la ubicación de sus puntos.
+// Defensivo: si la API no responde, devolvemos un mapa vacío (no se afina nada).
+const VS_API = "https://www.venezuelasolidaria.com/api/v1/resources";
+const VS_PREFIJO = "venezuela_solidaria:";
+
+async function coordsVenezuelaSolidaria(): Promise<Map<string, [number, number]>> {
+  const m = new Map<string, [number, number]>();
+  try {
+    const u = new URL(VS_API);
+    u.searchParams.set("limit", "200");
+    const r = await fetch(u, {
+      headers: {
+        accept: "application/json",
+        "user-agent": "Mozilla/5.0 ManosVenezuela/1.0 (+https://www.manosvenezuela.com)",
+      },
+      signal: AbortSignal.timeout(9000),
+      next: { revalidate: 300 },
+    });
+    if (!r.ok) return m;
+    const data = (await r.json()) as Raw;
+    const items = Array.isArray(data.items) ? (data.items as Raw[]) : [];
+    for (const it of items) {
+      const id = str(it.id);
+      const lat = numOrNull(it.lat);
+      const lng = numOrNull(it.lng);
+      if (id && lat != null && lng != null) m.set(id, [lat, lng]);
+    }
+  } catch {
+    /* ignore: dejamos las coordenadas como estén */
+  }
+  return m;
+}
+
 export async function GET() {
   try {
-    const [refugios, acopio, donacion, recurso] = await Promise.all([
+    const [refugios, acopio, donacion, recurso, vsCoords] = await Promise.all([
       buscar({ record_type: "recurso", q: "refugio", tipoForzado: "refugio" }),
       buscar({ record_type: "centro_acopio" }),
       buscar({ record_type: "centro_donacion" }),
       buscar({ record_type: "recurso" }),
+      coordsVenezuelaSolidaria(),
     ]);
 
     // Dedupe por id (refugios primero, para que conserven su etiqueta).
@@ -102,7 +138,22 @@ export async function GET() {
       puntos.push(p);
     }
 
-    return json({ count: puntos.length, puntos: puntos.slice(0, 600) });
+    // Afinar coordenadas de los puntos de Venezuela Solidaria con su API.
+    let afinados = 0;
+    if (vsCoords.size > 0) {
+      for (const p of puntos) {
+        if (p.id && p.id.startsWith(VS_PREFIJO)) {
+          const exact = vsCoords.get(p.id.slice(VS_PREFIJO.length));
+          if (exact) {
+            [p.lat, p.lng] = exact;
+            p.aprox = false;
+            afinados++;
+          }
+        }
+      }
+    }
+
+    return json({ count: puntos.length, afinados, puntos: puntos.slice(0, 600) });
   } catch {
     return json({ count: 0, puntos: [] });
   }

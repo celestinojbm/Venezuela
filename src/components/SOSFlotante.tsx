@@ -93,7 +93,7 @@ export default function SOSFlotante() {
         <span className="text-xl" aria-hidden>
           🆘
         </span>
-        <span className="text-sm font-extrabold">Tengo una emergencia</span>
+        <span className="text-sm font-extrabold text-black">Tengo una emergencia</span>
       </button>
 
       {abierto && <SOSModal onClose={() => setAbierto(false)} supabase={supabase} />}
