@@ -4,6 +4,7 @@ import { SupabaseProvider } from "@/components/providers/SupabaseProvider";
 import Header from "@/components/Header";
 import BottomNav from "@/components/BottomNav";
 import ServiceWorkerRegister from "@/components/ServiceWorkerRegister";
+import IndicadorOffline from "@/components/IndicadorOffline";
 
 export const metadata: Metadata = {
   title: "Manos Venezuela — Ayuda directa",
@@ -39,6 +40,7 @@ export default function RootLayout({
       <body className="min-h-screen font-sans">
         <SupabaseProvider>
           <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col bg-white shadow-sm">
+            <IndicadorOffline />
             <Header />
             <main className="flex-1 pb-24">{children}</main>
             <BottomNav />
