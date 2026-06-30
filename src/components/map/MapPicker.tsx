@@ -40,24 +40,47 @@ export default function MapPicker({
   const [error, setError] = useState<string | null>(null);
 
   function usarMiUbicacion() {
-    if (!("geolocation" in navigator)) {
-      setError("Tu dispositivo no permite geolocalización.");
+    if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
+      setError("Tu navegador no permite geolocalización. Toca el mapa para marcar el lugar.");
+      return;
+    }
+    if (typeof window !== "undefined" && window.isSecureContext === false) {
+      setError("La ubicación solo funciona en sitios seguros (https). Toca el mapa para marcarlo.");
       return;
     }
     setBuscando(true);
     setError(null);
+
+    const ok = (pos: GeolocationPosition) => {
+      const p: LatLng = [pos.coords.latitude, pos.coords.longitude];
+      onChange(p);
+      setVolarA(p);
+      setBuscando(false);
+    };
+    const fallo = (err: GeolocationPositionError) => {
+      setBuscando(false);
+      if (err?.code === 1) {
+        setError(
+          "Permiso de ubicación denegado. Actívalo en el navegador (icono de candado) o toca el mapa para marcar el lugar.",
+        );
+      } else if (err?.code === 3) {
+        setError("La ubicación tardó demasiado. Revisa el GPS o toca el mapa para marcarlo.");
+      } else {
+        setError("No pudimos obtener tu ubicación. Toca el mapa para marcar el lugar.");
+      }
+    };
+
+    // Primero alta precisión (rápido); si falla o da timeout, reintenta con baja
+    // precisión y caché, que es mucho más fiable en interiores y en escritorio.
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const p: LatLng = [pos.coords.latitude, pos.coords.longitude];
-        onChange(p);
-        setVolarA(p);
-        setBuscando(false);
-      },
-      () => {
-        setError("No pudimos obtener tu ubicación. Tócala en el mapa.");
-        setBuscando(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
+      ok,
+      () =>
+        navigator.geolocation.getCurrentPosition(ok, fallo, {
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 60000,
+        }),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
     );
   }
 

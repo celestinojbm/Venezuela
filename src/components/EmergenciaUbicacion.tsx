@@ -20,16 +20,24 @@ export default function EmergenciaUbicacion() {
     }
     setBuscando(true);
     setError(null);
+    const ok = (p: GeolocationPosition) => {
+      setPos({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy ?? null });
+      setBuscando(false);
+    };
+    const fallo = () => {
+      setError("No pudimos obtener tu ubicación. Activa el GPS y permite el acceso a la ubicación.");
+      setBuscando(false);
+    };
+    // Alta precisión primero; si falla, reintento con baja precisión (más fiable).
     navigator.geolocation.getCurrentPosition(
-      (p) => {
-        setPos({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy ?? null });
-        setBuscando(false);
-      },
-      () => {
-        setError("No pudimos obtener tu ubicación. Activa el GPS y permite el acceso a la ubicación.");
-        setBuscando(false);
-      },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
+      ok,
+      () =>
+        navigator.geolocation.getCurrentPosition(ok, fallo, {
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 60000,
+        }),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
     );
   }
 

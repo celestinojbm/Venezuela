@@ -135,13 +135,20 @@ function SOSModal({
       return;
     }
     setGeoEstado("buscando");
+    const ok = (p: GeolocationPosition) => {
+      setGeo({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy ?? null });
+      setGeoEstado("ok");
+    };
+    // Alta precisión primero; si falla, reintento con baja precisión (más fiable).
     navigator.geolocation.getCurrentPosition(
-      (p) => {
-        setGeo({ lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy ?? null });
-        setGeoEstado("ok");
-      },
-      () => setGeoEstado("error"),
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 },
+      ok,
+      () =>
+        navigator.geolocation.getCurrentPosition(ok, () => setGeoEstado("error"), {
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 60000,
+        }),
+      { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 },
     );
   }
 
