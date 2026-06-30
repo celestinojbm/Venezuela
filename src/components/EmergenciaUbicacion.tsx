@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Siren, LocateFixed, MapPin, Phone, Map as MapIcon } from "lucide-react";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
+import Button, { buttonClasses } from "@/components/ui/Button";
 
 type Pos = { lat: number; lng: number; acc: number | null };
 
@@ -57,13 +58,16 @@ export default function EmergenciaUbicacion() {
       </p>
 
       {!pos ? (
-        <button
+        <Button
+          variant="danger"
+          size="lg"
+          fullWidth
           onClick={capturar}
           disabled={buscando}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-peligro-600 py-3.5 text-sm font-bold text-white shadow-sm shadow-peligro-600/25 active:scale-[0.99] disabled:opacity-60"
+          className="mt-3"
         >
           <LocateFixed size={18} /> {buscando ? "Obteniendo tu ubicación…" : "Captar mi ubicación"}
-        </button>
+        </Button>
       ) : (
         <div className="mt-3 space-y-2">
           <div className="rounded-xl bg-white px-3 py-2 text-sm">
@@ -80,7 +84,7 @@ export default function EmergenciaUbicacion() {
             href={`https://wa.me/?text=${encodeURIComponent(waText)}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-sm font-bold text-white shadow-sm shadow-emerald-600/20 active:scale-[0.99]"
+            className={buttonClasses({ variant: "success", size: "lg", fullWidth: true })}
           >
             <WhatsAppIcon size={18} /> Compartir mi ubicación por WhatsApp
           </a>
@@ -88,13 +92,13 @@ export default function EmergenciaUbicacion() {
             href={mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white py-3 text-sm font-bold text-slate-700 active:scale-[0.99]"
+            className={buttonClasses({ variant: "secondary", size: "lg", fullWidth: true })}
           >
             <MapIcon size={17} /> Abrir en Google Maps
           </a>
           <a
             href="tel:911"
-            className="flex items-center justify-center gap-2 rounded-xl bg-peligro-600 py-3 text-sm font-bold text-white active:scale-[0.99]"
+            className={buttonClasses({ variant: "danger", size: "lg", fullWidth: true })}
           >
             <Phone size={17} /> Llamar al 911
           </a>

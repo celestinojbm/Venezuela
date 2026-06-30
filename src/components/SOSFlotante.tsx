@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Siren, Phone } from "lucide-react";
 import WhatsAppIcon from "@/components/WhatsAppIcon";
+import Button, { buttonClasses } from "@/components/ui/Button";
 import { useSupabase } from "@/components/providers/SupabaseProvider";
 
 // Botón flotante "Tengo una emergencia": se puede arrastrar a cualquier parte
@@ -233,13 +234,13 @@ function SOSModal({
               href={`https://wa.me/?text=${encodeURIComponent(waText)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3.5 text-center text-sm font-bold text-white"
+              className={buttonClasses({ variant: "success", size: "lg", fullWidth: true })}
             >
               <WhatsAppIcon size={18} /> Compartir por WhatsApp
             </a>
             <a
               href="tel:911"
-              className="flex items-center justify-center gap-2 rounded-xl bg-peligro-600 py-3.5 text-center text-sm font-bold text-white"
+              className={buttonClasses({ variant: "danger", size: "lg", fullWidth: true })}
             >
               <Phone size={17} /> Llamar al 911
             </a>
@@ -247,7 +248,7 @@ function SOSModal({
               <Link
                 href={`/solicitudes/${exito.id}`}
                 onClick={onClose}
-                className="block rounded-xl border border-slate-200 bg-white py-3 text-center text-sm font-bold text-slate-700"
+                className={buttonClasses({ variant: "secondary", size: "lg", fullWidth: true })}
               >
                 Ver mi solicitud
               </Link>
@@ -266,7 +267,7 @@ function SOSModal({
             {/* Llamar 911: lo más rápido en una emergencia real */}
             <a
               href="tel:911"
-              className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-peligro-600 py-3 text-center text-sm font-extrabold text-white"
+              className={buttonClasses({ variant: "danger", size: "lg", fullWidth: true, className: "mt-3" })}
             >
               <Phone size={17} /> Llamar al 911 ahora
             </a>
@@ -326,20 +327,23 @@ function SOSModal({
 
             {error && <p className="mt-2 text-sm font-medium text-peligro-700">{error}</p>}
 
-            <button
+            <Button
+              variant="danger"
+              size="lg"
+              fullWidth
               onClick={enviar}
               disabled={enviando}
-              className="mt-3 w-full rounded-xl bg-peligro-600 py-3.5 text-sm font-extrabold text-white disabled:opacity-60"
+              className="mt-3"
             >
               {enviando ? "Enviando…" : "Enviar y pedir ayuda"}
-            </button>
+            </Button>
 
             {geo && (
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(waText)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-3 text-center text-sm font-bold text-emerald-700"
+                className="mt-2 flex items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 py-3 text-center text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 active:scale-[0.98]"
               >
                 <WhatsAppIcon size={17} /> O comparte por WhatsApp ahora
               </a>

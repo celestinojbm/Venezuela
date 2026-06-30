@@ -6,7 +6,8 @@ import { useState } from "react";
 import AuthGate from "@/components/AuthGate";
 import { useSupabase } from "@/components/providers/SupabaseProvider";
 import { CATEGORIAS, type CategoriaValue } from "@/lib/constants";
-import { cx } from "@/lib/format";
+import Button from "@/components/ui/Button";
+import Chip from "@/components/ui/Chip";
 
 const MapPicker = dynamic(() => import("@/components/map/MapPicker"), {
   ssr: false,
@@ -139,19 +140,14 @@ function Formulario() {
         <span className="mb-1.5 block text-sm font-medium text-slate-700">Tipo de ayuda</span>
         <div className="flex flex-wrap gap-2">
           {CATEGORIAS.map((c) => (
-            <button
+            <Chip
               key={c.value}
-              type="button"
+              tone="success"
+              active={category === c.value}
               onClick={() => setCategory(c.value)}
-              className={cx(
-                "rounded-full border px-3 py-1.5 text-xs font-medium",
-                category === c.value
-                  ? "border-emerald-600 bg-emerald-600 text-white"
-                  : "border-slate-200 bg-white text-slate-600",
-              )}
             >
               <span aria-hidden>{c.emoji}</span> {c.label}
-            </button>
+            </Chip>
           ))}
         </div>
       </div>
@@ -200,13 +196,9 @@ function Formulario() {
         <p className="rounded-lg bg-peligro-50 px-3 py-2 text-sm text-peligro-700">{error}</p>
       )}
 
-      <button
-        type="submit"
-        disabled={cargando}
-        className="w-full rounded-xl bg-emerald-600 py-3.5 text-sm font-bold text-white disabled:opacity-60"
-      >
+      <Button type="submit" variant="success" size="lg" fullWidth disabled={cargando}>
         {cargando ? "Publicando…" : "Publicar mi ayuda"}
-      </button>
+      </Button>
 
       <style jsx global>{`
         .entrada {
