@@ -25,6 +25,17 @@ const CIUDADES: Record<string, LatLng> = {
   guarenas: [10.4717, -66.61],
   guatire: [10.4761, -66.54],
   petare: [10.4761, -66.8075],
+  // Parroquias / zonas de Caracas (muchos refugios se ubican por parroquia).
+  "el valle": [10.4467, -66.9136],
+  "la vega": [10.4631, -66.9425],
+  caricuao: [10.4319, -66.9897],
+  antimano: [10.4636, -66.9714],
+  coche: [10.4561, -66.9286],
+  catia: [10.5072, -66.9269],
+  "el junquito": [10.5167, -67.0833],
+  baruta: [10.4331, -66.8758],
+  "el hatillo": [10.4256, -66.8267],
+  chacao: [10.4975, -66.8536],
   "ocumare del tuy": [10.1131, -66.7806],
   charallave: [10.2417, -66.8589],
   "santa teresa del tuy": [10.2386, -66.665],
@@ -121,6 +132,18 @@ function jitter([lat, lng]: LatLng, seed: string): LatLng {
   return [lat + dl, lng + dn];
 }
 
+// Busca un nombre en una tabla: primero el texto completo normalizado, luego
+// cada parte separada por coma/guion/barra (p. ej. "Catia La Mar, La Guaira").
+function buscarEn(tabla: Record<string, LatLng>, texto: string | null): LatLng | null {
+  const t = norm(texto);
+  if (!t) return null;
+  if (tabla[t]) return tabla[t];
+  for (const parte of t.split(/[,/-]/).map((s) => s.trim()).filter(Boolean)) {
+    if (tabla[parte]) return tabla[parte];
+  }
+  return null;
+}
+
 /**
  * Devuelve coordenadas aproximadas a partir de ciudad y/o estado, o null si no
  * se reconoce. `seed` (p. ej. el id del registro) reparte los puntos cercanos.
@@ -130,9 +153,10 @@ export function ubicarVE(
   state: string | null,
   seed: string,
 ): LatLng | null {
-  const c = norm(city);
-  if (c && CIUDADES[c]) return jitter(CIUDADES[c], seed);
-  const e = norm(state);
-  if (e && ESTADOS[e]) return jitter(ESTADOS[e], seed);
-  return null;
+  const base =
+    buscarEn(CIUDADES, city) ??
+    buscarEn(ESTADOS, city) ?? // a veces el campo "ciudad" trae el estado
+    buscarEn(ESTADOS, state) ??
+    buscarEn(CIUDADES, state);
+  return base ? jitter(base, seed) : null;
 }
