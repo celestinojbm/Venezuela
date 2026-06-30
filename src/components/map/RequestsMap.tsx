@@ -7,6 +7,7 @@ import type { LatLngBoundsExpression } from "leaflet";
 import { CENTRO_VENEZUELA, ZOOM_INICIAL } from "@/lib/constants";
 import { iconoSolicitud, iconoRed } from "@/components/map/icons";
 import { CATEGORIA_MAP, URGENCIA_MAP } from "@/lib/constants";
+import { waHref, telHref } from "@/lib/contacto";
 import type { HelpRequest } from "@/lib/types";
 
 export type RedPunto = {
@@ -119,46 +120,66 @@ export default function RequestsMap({
           </Marker>
         ))}
 
-        {redCoords.map((p, i) => (
-          <Marker
-            key={`red-${p.id ?? i}`}
-            position={[p.lat as number, p.lng as number]}
-            icon={iconoRed(p.tipo ?? "recurso")}
-          >
-            <Popup>
-              <div className="min-w-[10rem]">
-                <div className="text-[11px] font-semibold uppercase text-slate-400">
-                  {RED_ETIQUETA[p.tipo ?? ""] ?? "Recurso"}
+        {redCoords.map((p, i) => {
+          const etiqueta = RED_ETIQUETA[p.tipo ?? ""] ?? "Recurso";
+          const wa = waHref(p.contacto, `Hola, los contacto desde Manos Venezuela por "${p.titulo ?? "ayuda"}".`);
+          const tel = telHref(p.contacto);
+          return (
+            <Marker
+              key={`red-${p.id ?? i}`}
+              position={[p.lat as number, p.lng as number]}
+              icon={iconoRed(p.tipo ?? "recurso")}
+            >
+              <Popup>
+                <div className="min-w-[11rem]">
+                  <div className="text-[11px] font-semibold uppercase text-slate-400">{etiqueta}</div>
+                  <div className="mt-0.5 text-sm font-bold text-slate-800">{p.titulo}</div>
+                  {p.lugar && (
+                    <div className="mt-0.5 text-xs text-slate-500">
+                      📍 {p.lugar}
+                      {p.aprox ? " (ubicación aproximada)" : ""}
+                    </div>
+                  )}
+                  {(wa || tel) && (
+                    <div className="mt-1.5 flex flex-wrap gap-1.5">
+                      {wa && (
+                        <a
+                          href={wa}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-md bg-emerald-600 px-2 py-1 text-[11px] font-bold text-white"
+                        >
+                          💬 WhatsApp
+                        </a>
+                      )}
+                      {tel && (
+                        <a
+                          href={tel}
+                          className="rounded-md border border-slate-200 px-2 py-1 text-[11px] font-bold text-slate-700"
+                        >
+                          📞 Llamar
+                        </a>
+                      )}
+                    </div>
+                  )}
+                  {p.fuente && (
+                    <div className="mt-1 text-[11px] text-slate-400">Fuente: {p.fuente}</div>
+                  )}
+                  {p.url && (
+                    <a
+                      href={p.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-1.5 inline-block text-xs font-semibold text-blue-600"
+                    >
+                      Ver en la fuente ↗
+                    </a>
+                  )}
                 </div>
-                <div className="mt-0.5 text-sm font-bold text-slate-800">{p.titulo}</div>
-                {p.lugar && (
-                  <div className="mt-0.5 text-xs text-slate-500">
-                    📍 {p.lugar}
-                    {p.aprox ? " (ubicación aproximada)" : ""}
-                  </div>
-                )}
-                {p.contacto && (
-                  <a href={`tel:${p.contacto}`} className="mt-0.5 block text-xs font-semibold text-emerald-700">
-                    📞 {p.contacto}
-                  </a>
-                )}
-                {p.fuente && (
-                  <div className="mt-0.5 text-[11px] text-slate-400">Fuente: {p.fuente}</div>
-                )}
-                {p.url && (
-                  <a
-                    href={p.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 inline-block text-xs font-semibold text-blue-600"
-                  >
-                    Ver en la fuente ↗
-                  </a>
-                )}
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          );
+        })}
       </MapContainer>
     </div>
   );

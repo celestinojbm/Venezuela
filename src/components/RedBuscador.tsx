@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cx } from "@/lib/format";
+import { waHref, telHref } from "@/lib/contacto";
 
 // Buscador en vivo sobre la Red Humanitaria de Datos (redayuda.eriktaveras.com).
 // No copiamos datos: se consultan en vivo vía /api/red y se enlazan a su fuente.
@@ -17,6 +18,7 @@ type RedItem = {
   lugar: string | null;
   ciudad: string | null;
   estado: string | null;
+  contacto: string | null;
   lat: number | null;
   lng: number | null;
   fuente: string | null;
@@ -223,6 +225,8 @@ function Tarjeta({ it }: { it: RedItem }) {
   const nombre = it.persona || it.titulo || "Sin título";
   const enlace = it.url || RED_HOME;
   const enlaceLabel = it.url ? "Ver en la fuente ↗" : "Ver en la Red ↗";
+  const wa = waHref(it.contacto, `Hola, los contacto desde Manos Venezuela por "${it.titulo ?? "ayuda"}".`);
+  const tel = telHref(it.contacto);
 
   return (
     <article className="rounded-2xl border border-slate-200 bg-white p-4">
@@ -242,6 +246,29 @@ function Tarjeta({ it }: { it: RedItem }) {
           <span aria-hidden>📍</span> {it.lugar}
           {it.ciudad && it.ciudad !== it.lugar ? `, ${it.ciudad}` : ""}
         </p>
+      )}
+
+      {(wa || tel) && (
+        <div className="mt-2 flex gap-2">
+          {wa && (
+            <a
+              href={wa}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 rounded-lg bg-emerald-600 py-2 text-center text-xs font-bold text-white"
+            >
+              💬 WhatsApp
+            </a>
+          )}
+          {tel && (
+            <a
+              href={tel}
+              className="flex-1 rounded-lg border border-slate-200 py-2 text-center text-xs font-bold text-slate-700"
+            >
+              📞 Llamar
+            </a>
+          )}
+        </div>
       )}
 
       <div className="mt-3 flex items-center justify-between gap-2">

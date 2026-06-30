@@ -90,8 +90,10 @@ async function buscar(opts: { record_type?: string; q?: string; tipoForzado?: st
 const VS_API = "https://www.venezuelasolidaria.com/api/v1/resources";
 const VS_PREFIJO = "venezuela_solidaria:";
 
-async function coordsVenezuelaSolidaria(): Promise<Map<string, [number, number]>> {
-  const m = new Map<string, [number, number]>();
+type VSDato = { lat: number | null; lng: number | null; phone: string | null };
+
+async function datosVenezuelaSolidaria(): Promise<Map<string, VSDato>> {
+  const m = new Map<string, VSDato>();
   try {
     const u = new URL(VS_API);
     u.searchParams.set("limit", "200");
@@ -108,24 +110,23 @@ async function coordsVenezuelaSolidaria(): Promise<Map<string, [number, number]>
     const items = Array.isArray(data.items) ? (data.items as Raw[]) : [];
     for (const it of items) {
       const id = str(it.id);
-      const lat = numOrNull(it.lat);
-      const lng = numOrNull(it.lng);
-      if (id && lat != null && lng != null) m.set(id, [lat, lng]);
+      if (!id) continue;
+      m.set(id, { lat: numOrNull(it.lat), lng: numOrNull(it.lng), phone: str(it.phone) });
     }
   } catch {
-    /* ignore: dejamos las coordenadas como estén */
+    /* ignore: dejamos los puntos como estén */
   }
   return m;
 }
 
 export async function GET() {
   try {
-    const [refugios, acopio, donacion, recurso, vsCoords] = await Promise.all([
+    const [refugios, acopio, donacion, recurso, vsDatos] = await Promise.all([
       buscar({ record_type: "recurso", q: "refugio", tipoForzado: "refugio" }),
       buscar({ record_type: "centro_acopio" }),
       buscar({ record_type: "centro_donacion" }),
       buscar({ record_type: "recurso" }),
-      coordsVenezuelaSolidaria(),
+      datosVenezuelaSolidaria(),
     ]);
 
     // Dedupe por id (refugios primero, para que conserven su etiqueta).
@@ -138,16 +139,20 @@ export async function GET() {
       puntos.push(p);
     }
 
-    // Afinar coordenadas de los puntos de Venezuela Solidaria con su API.
+    // Afinar coordenadas y teléfono de los puntos de Venezuela Solidaria con su API.
     let afinados = 0;
-    if (vsCoords.size > 0) {
+    if (vsDatos.size > 0) {
       for (const p of puntos) {
         if (p.id && p.id.startsWith(VS_PREFIJO)) {
-          const exact = vsCoords.get(p.id.slice(VS_PREFIJO.length));
-          if (exact) {
-            [p.lat, p.lng] = exact;
-            p.aprox = false;
-            afinados++;
+          const d = vsDatos.get(p.id.slice(VS_PREFIJO.length));
+          if (d) {
+            if (d.lat != null && d.lng != null) {
+              p.lat = d.lat;
+              p.lng = d.lng;
+              p.aprox = false;
+              afinados++;
+            }
+            if (d.phone && !p.contacto) p.contacto = d.phone;
           }
         }
       }

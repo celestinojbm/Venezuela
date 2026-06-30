@@ -45,6 +45,7 @@ function normalizar(row: Raw) {
     lugar: str(rec.location_name) ?? str(rec.city),
     ciudad: str(rec.city),
     estado: str(rec.status) ?? str(rec.estado),
+    contacto: str(rec.contact) ?? str(rec.reporta_contacto) ?? str(rec.pv_contacto),
     lat: numOrNull(rec.latitude ?? rec.ultima_lat ?? rec.lat),
     lng: numOrNull(rec.longitude ?? rec.ultima_lng ?? rec.lng),
     fuente: str(rec.source_name) ?? str(rec.origin_source),
