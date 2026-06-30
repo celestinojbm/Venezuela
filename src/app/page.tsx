@@ -118,7 +118,7 @@ export default function HomePage() {
 
       <Link
         href="/guia"
-        className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 px-4 py-3 text-white shadow-sm shadow-blue-600/25"
+        className="flex items-center justify-between rounded-2xl bg-gradient-to-r from-peligro-600 to-peligro-700 px-4 py-3 text-white shadow-sm shadow-peligro-600/25"
       >
         <span className="flex items-center gap-2 text-sm font-bold">
           <Siren size={18} strokeWidth={2.5} /> Emergencias y guía de seguridad
