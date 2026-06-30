@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 const HERO_IMG =
   "https://framerusercontent.com/images/a29cIJHtI4rrb1wJpvwcAkqo3lA.jpg";
 const CONTEXTO_IMG =
-  "https://framerusercontent.com/images/CUA1qAVoM5ce6xT7SmvN7CRX8Y.jpg";
+  "https://framerusercontent.com/images/u23dzJWWl0U9WkM97L5kk4OKlM.jpg";
 
 const APP_URL = "/";
 const URL_AYUDAR = "/red";
@@ -193,7 +193,7 @@ export default function LandingPage() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={CONTEXTO_IMG}
-              alt="Manos unidas en señal de solidaridad y trabajo en equipo"
+              alt="Personas voluntarias clasificando donaciones de alimentos para la comunidad"
               className="aspect-square w-full rounded-[18px] object-cover shadow-xl shadow-slate-900/10 ring-1 ring-slate-900/[0.06]"
             />
           </div>
