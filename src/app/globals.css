@@ -37,12 +37,3 @@ body {
 .safe-bottom {
   padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
 }
-
-/* Oculta scrollbars horizontales en filtros deslizables. */
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}

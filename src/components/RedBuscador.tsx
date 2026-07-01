@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import Chip from "@/components/ui/Chip";
+import ChipRow from "@/components/ui/ChipRow";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Search,
@@ -153,7 +154,7 @@ export default function RedBuscador() {
       </div>
 
       {/* Filtros por tipo */}
-      <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
+      <ChipRow>
         {TIPOS.map((t) => {
           const Icon = t.Icon;
           return (
@@ -167,7 +168,7 @@ export default function RedBuscador() {
             </Chip>
           );
         })}
-      </div>
+      </ChipRow>
 
       {/* Contador */}
       {!cargando && !error && (
