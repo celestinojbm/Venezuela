@@ -2,6 +2,7 @@
 
 import { CATEGORIAS, URGENCIAS, type CategoriaValue, type UrgenciaValue } from "@/lib/constants";
 import UiChip from "@/components/ui/Chip";
+import ChipRow from "@/components/ui/ChipRow";
 
 export interface FiltrosState {
   busqueda: string;
@@ -43,7 +44,7 @@ export default function Filters({
         />
       </div>
 
-      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+      <ChipRow>
         <Chip
           activo={value.categoria === "todas"}
           onClick={() => onChange({ ...value, categoria: "todas" })}
@@ -59,10 +60,10 @@ export default function Filters({
             <span aria-hidden>{c.emoji}</span> {c.label}
           </Chip>
         ))}
-      </div>
+      </ChipRow>
 
       {!ocultarUrgencia && (
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+        <ChipRow className="items-center">
           <Chip
             activo={value.urgencia === "todas"}
             onClick={() => onChange({ ...value, urgencia: "todas" })}
@@ -88,7 +89,7 @@ export default function Filters({
             />
             Solo abiertas
           </label>
-        </div>
+        </ChipRow>
       )}
     </div>
   );
