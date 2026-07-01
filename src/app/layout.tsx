@@ -34,10 +34,10 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Manos Venezuela",
   },
-  icons: {
-    icon: "/icons/icon.svg",
-    apple: "/icons/icon-192.png",
-  },
+  // Los íconos los sirven las convenciones de archivo src/app/icon.svg y
+  // src/app/apple-icon.tsx. Next las publica con una URL con hash de contenido,
+  // así el navegador no se queda con el ícono viejo en caché al cambiarlo.
+  // (No declaramos `icons` aquí: metadata.icons anularía esas convenciones.)
   openGraph: {
     type: "website",
     locale: "es_VE",
